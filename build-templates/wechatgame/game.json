@@ -1,0 +1,45 @@
+{
+    "deviceOrientation": "landscape",
+    "openDataContext": "subcontext",
+    "networkTimeout": {
+        "request": 5000,
+        "connectSocket": 5000,
+        "uploadFile": 5000,
+        "downloadFile": 5000
+    },
+    "subpackages": [
+        {
+            "name": "audio",
+            "root": "subpackages/audio/"
+        },
+        {
+            "name": "icon",
+            "root": "subpackages/icon/"
+        },
+        {
+            "name": "loading",
+            "root": "subpackages/loading/"
+        },
+        {
+            "name": "skin",
+            "root": "subpackages/skin/"
+        },
+        {
+            "name": "world",
+            "root": "subpackages/world/"
+        }
+    ], 
+    "navigateToMiniProgramAppIdList": [
+        "wxe8ca2131ab70e35a",
+        "wx6092d7f44e8b8abb",
+        "wx2e764593e687e552",
+        "wx149ecc2dc0c263fc",
+        "wx51f4ebc1ebccb741",
+        "wx2839917f667e3323",
+        "wxfa706423a9ab1ab3",
+        "wx89db9ff783f2bef9",
+        "wxe0c3bb7219bfa450",
+        "wx044c26badb556671"
+    ]
+
+}

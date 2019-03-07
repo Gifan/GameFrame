@@ -1,0 +1,24 @@
+import { AbsCell } from "../../../../frame/extension/AbsCell";
+@Import
+/// <summary>
+/// 程序生成的UI代码类，请勿修改
+/// </summary>
+export class @ClassName extends AbsCell {
+    public constructor(node ?: cc.Node) {
+        super();
+        if (node != null) {
+            this.Init(node);
+        }
+    }
+    @Property
+
+    public Init(node : cc.Node) {
+        this._node = node;
+        @InitFuncBody
+    }
+
+    public Free() {
+        super.Free();
+        @FreeFuncBody
+    }
+}

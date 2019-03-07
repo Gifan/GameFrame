@@ -1,0 +1,7 @@
+{
+  "name": "build-processor",
+  "version": "0.0.1",
+  "description": "打包后的资源处理",
+  "author": "zou bin",
+  "main": "main.js"
+}

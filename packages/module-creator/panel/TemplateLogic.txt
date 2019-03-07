@@ -1,0 +1,40 @@
+import { MVCS } from "../../../frame/mvcs/MVCS";
+import { Notifier } from "../../../frame/mvcs/Notifier";
+import { NotifyID } from "../../../frame/mvcs/NotifyID";
+import { Time } from "../../../frame/Time";
+import { ListenID } from "../../ListenID";
+import { CallID } from "../../CallID";
+
+/*
+ * desc
+ */
+export class @ModuleNameLogic extends MVCS.AbsLogic {
+    public constructor() {
+        super("@ModuleName");
+
+        //this.changeListener(true);
+    }
+
+    public setup(model?, net?) : boolean {
+        if (this.isSetup) {
+            return true;
+        }
+        this._isSetup = true;
+
+        return false;
+    }
+
+    public reset() : void {
+        if (!this.isSetup) {
+            return ;
+        }
+    }
+
+    //protected changeListener(enable : boolean) : void {
+    //    Notifier.changeListener(enable, ListenID.Scene_AskSwitch, this.onAskSwitch, this);
+    //    Notifier.changeCall(enable, CallID.Scene_IsEnter, this.isEnter, this);
+    //}
+
+    //private onAskSwitch(id : number) : void {
+    //}
+}

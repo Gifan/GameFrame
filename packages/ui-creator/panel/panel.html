@@ -1,0 +1,28 @@
+<div id="warp" class="warp">
+    <br/>
+    1.图片查找目录优先级：模块目录 > 通用目录 > 背景目录<br/>
+    2.图片名称必须全工程唯一<br/>
+    3.PSD导出默认位置：C:/PsdExport/文件名.json<br/>
+	4.背景目录用于放置不打图集的大图片
+
+    <section class="path">
+        <hr />
+        <div>根目录: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <ui-input v-value="root" style="width:200"></ui-input></div>
+        <div>背景目录: &nbsp; <ui-input v-value="bg" style="width:200"></ui-input></div>
+        <div>通用目录: &nbsp; <ui-input v-value="common" style="width:200"></ui-input></div>
+        <div>模块目录: &nbsp; <ui-input v-value="moudule" style="width:200" placeholder="必须输入模块名称"></ui-input></div>
+        <div>导出目录: &nbsp; <ui-input v-value="export" style="width:200"></ui-input></div>
+        <hr />
+    </section>
+
+    <br/>
+    <div>
+        <ui-checkbox v-value="useExtend" title="是否使用script/extension文件夹中的UI扩展？">使用扩展UI</ui-checkbox>
+        <ui-checkbox v-value="useNewest" title="是否最后一次PSD导出的Json文件？">使用最新导出Json</ui-checkbox>
+    </div>
+    <br/>
+    <div>
+        <ui-button class="big blue" v-on:confirm="onClickCreate">生成预制件</ui-button>
+        <ui-button class="big green" v-on:confirm="onClickExport">导出代码</ui-button>
+    </div>
+</div>

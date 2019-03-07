@@ -1,0 +1,70 @@
+import { MVCS } from "../../../frame/mvcs/MVCS";
+import { Notifier } from "../../../frame/mvcs/Notifier";
+import { NotifyID } from "../../../frame/mvcs/NotifyID";
+import { DefaultTransition } from "../../../frame/mvcs/transition/DefaultTransition";
+import { Time } from "../../../frame/Time";
+import { ListenID } from "../../ListenID";
+import { CallID } from "../../CallID";
+import { Cfg } from "../../config/Cfg";
+//import { @ModuleNameUI } from "./uiGen/@ModuleNameUI";
+
+export class @ModuleNameView extends MVCS.AbsView {
+    public constructor() {
+        super("ui/@ModuleNameUI@@ModuleName", MVCS.eUILayer.Panel, MVCS.eUIQueue.Panel, new DefaultTransition())
+        
+    }
+
+    //private _ui : @ModuleNameUI;
+
+    protected onLoad() : void {
+        //let ui = new @ModuleNameUI(this.node);
+        //this._ui = ui;
+        
+    }
+
+    protected onUnload() : void {
+        
+    }
+
+    protected changeListener(enable : boolean) : void {
+        //Notifier.changeListener(enable, NotifyID.Game_Update, this.onUpdate, this);
+    }
+    
+    /*
+     * 打开界面回调，每次打开只调用一次
+     */
+    //protected onOpen() : void {
+    //    super.onOpen();
+    //}
+
+    /*
+     * 关闭界面回调，每次打开只调用一次
+     */
+    //protected onClose() : void {
+    //    super.onClose();
+    //}
+
+    /*
+     * 显示界面回调，打开会调用一次，被同eUIQueue界面隐藏后显示会调用一次
+     */
+    //protected onShow() : void {
+    //    super.onShow();
+    //}
+
+    /*
+     * 隐藏界面回调，关闭会调用一次，被同eUIQueue界面隐藏会调用一次
+     */
+    //protected onHide() : void {
+    //    super.onHide();
+    //}
+
+    /*
+     * 更新回调，支持暂停功能
+     * 若有可能，尽量用定时器Time.delay代替update
+     */
+    //private onUpdate() : void {        
+    //    cc.log("@ModuleNameView.onUpdate", Time.time, Time.deltaTime);        
+    //}
+
+    
+}

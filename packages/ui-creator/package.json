@@ -1,0 +1,21 @@
+{
+  "name": "ui-creator",
+  "version": "0.0.1",
+  "description": "PSD导出生成UIPrefab Prefa生成对应结构TS代码",
+  "author": "zoubin",
+  "mail":"koonm@qq.com",
+  "main": "main.js",
+  "main-menu": {
+    "i18n:MAIN_MENU.package.title/ui-creator": {
+      "message": "ui-creator:open"
+    }
+  },
+  "scene-script": "utils/uiCreatorScene.js",
+  "panel": {
+    "main": "panel/uiCreatorPanel.js",
+    "type": "dockable",
+    "title": "ui-creator",
+    "width": 400,
+    "height": 420
+  }
+}

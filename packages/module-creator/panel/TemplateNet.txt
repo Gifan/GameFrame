@@ -1,0 +1,26 @@
+import { MVCS } from "../../../frame/mvcs/MVCS";
+import { Notifier } from "../../../frame/mvcs/Notifier";
+import { NotifyID } from "../../../frame/mvcs/NotifyID";
+import { ListenID } from "../../ListenID";
+import { NetUtil } from "../../NetUtil";
+import { @ModuleNameModel } from "./@ModuleNameModel"
+import { MsgID } from "../../MsgID";
+
+export class @ModuleNameNet extends MVCS.AbsNet<@ModuleNameModel> {
+
+    public constructor() {
+        super();
+    }
+
+    public reset() : void {
+        
+    }
+
+    protected register() : void {
+        //Notifier.addListener(ListenID.Item_Init, this.initItems, this);
+    }
+
+    //private initItems(items : Common.IItem[]) : void {
+    //    this._model.initItems(items);
+    //}
+}

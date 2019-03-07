@@ -1,0 +1,28 @@
+import { MVCS } from "../../../frame/mvcs/MVCS";
+import { Notifier } from "../../../frame/mvcs/Notifier";
+import { NotifyID } from "../../../frame/mvcs/NotifyID";
+import { Time } from "../../../frame/Time";
+import { ListenID } from "../../ListenID";
+import { CallID } from "../../CallID";
+import { @ModuleNameModel } from "./@ModuleNameModel"
+import { @ModuleNameNet } from "./@ModuleNameNet"
+
+/*
+ * desc
+ */
+export class @ModuleNameLogic extends MVCS.MNLogic<@ModuleNameModel, @ModuleNameNet> {
+    public constructor() {
+        super("@ModuleName");
+
+        //this.setup(new @ModuleNameModel(), new @ModuleNameNet());
+        //this.changeListener(true);
+    }
+
+    //protected changeListener(enable : boolean) : void {
+    //    Notifier.changeListener(enable, ListenID.Scene_AskSwitch, this.onAskSwitch, this);
+    //    Notifier.changeCall(enable, CallID.Scene_IsEnter, this.isEnter, this);
+    //}
+
+    //private onAskSwitch(id : number) : void {
+    //}
+}

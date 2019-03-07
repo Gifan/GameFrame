@@ -1,0 +1,18 @@
+import { MVCS } from "../../../frame/mvcs/MVCS";
+import { Notifier } from "../../../frame/mvcs/Notifier";
+import { NotifyID } from "../../../frame/mvcs/NotifyID";
+import { ListenID } from "../../ListenID";
+
+export class @ModuleNameModel extends MVCS.AbsModel {
+    public constructor() {
+        super("@ModuleName");
+    }
+
+    public reset() : void {
+        
+    }
+
+    public serialize( ) : string { 
+        return null; 
+    }
+}
