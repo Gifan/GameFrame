@@ -1,6 +1,7 @@
-import { UIManager } from "../framework/UIManager";
-import { MVC } from "../framework/MVC";
+
 import { Manager } from "../manager/Manager";
+import { UIManager } from "../frame/UIManager";
+import { MVC } from "../frame/MVC";
 
 export class UILanuncher {
     public constructor() {

@@ -1,7 +1,7 @@
-import { MVC } from "../framework/MVC";
+
 import { Util } from "../utils/Util";
-import { UIManager } from "../framework/UIManager";
 import NormalTips from "./NormalTips";
+import { MVC } from "../frame/MVC";
 
 export enum AlertType {
     COMMON = 0, //普通

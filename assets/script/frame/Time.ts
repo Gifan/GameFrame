@@ -6,7 +6,7 @@ import { Notifier } from "./Notifier";
 import { NotifyID } from "./NotifyID";
 import NetAdapter from "../adpapter/NetAdapter";
 import { ListenID } from "../ListenID";
-import { EventManager } from "../../sdk/hd_module/mgr/EventManager";
+import { EventManager } from "../sdk/hd_module/mgr/EventManager";
 
 class _Time {
     private _time: number = 0;

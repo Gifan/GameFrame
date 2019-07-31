@@ -1,4 +1,4 @@
-import { MVC } from "../../framework/MVC";
+import { MVC } from "../../frame/MVC";
 
 const { ccclass, property } = cc._decorator;
 

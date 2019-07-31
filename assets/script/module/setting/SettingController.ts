@@ -1,12 +1,14 @@
-import { MVC } from "../../framework/MVC";
-import { Notifier } from "../../framework/Notifier";
+
 import { ListenID } from "../../ListenID";
 import { CallID } from "../../CallID";
 import SettingModel from "./SettingModel";
 import { Manager } from "../../manager/Manager";
 import { Const } from "../../config/Const";
-import { UIManager } from "../../framework/UIManager";
+
 import { Common_UIPath } from "../../common/Common_Define";
+import { MVC } from "../../frame/MVC";
+import { Notifier } from "../../frame/Notifier";
+import { UIManager } from "../../frame/UIManager";
 
 /*
  * 设置控制器

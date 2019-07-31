@@ -1,10 +1,8 @@
 import { MVC } from "./MVC"
 import { Const } from "../config/Const";
-import { HD_MODULE } from "../sdk/hd_module/hd_module";
 import { AlertManager, AlertType } from "../alert/AlertManager";
-type Node = cc.Node
-type Canvas = cc.Canvas
-type Vector2 = cc.Vec2
+type Node = cc.Node;
+type Canvas = cc.Canvas;
 
 declare interface AssetsMap {
     [key: string]: any;

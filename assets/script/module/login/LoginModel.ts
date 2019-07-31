@@ -1,4 +1,5 @@
-import { MVC } from "../../framework/MVC";
+import { MVC } from "../../frame/MVC";
+
 
 export class LoginModel extends MVC.BaseModel {
 

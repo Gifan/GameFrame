@@ -1,5 +1,6 @@
-import { MVC } from "../framework/MVC";
+
 import { Manager } from "../manager/Manager";
+import { MVC } from "../frame/MVC";
 
 const { ccclass, property } = cc._decorator;
 

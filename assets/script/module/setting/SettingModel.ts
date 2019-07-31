@@ -1,5 +1,5 @@
-import { MVC } from "../../framework/MVC";
 import { Const } from "../../config/Const";
+import { MVC } from "../../frame/MVC";
 
 export default class SettingModel extends MVC.BaseModel {
 

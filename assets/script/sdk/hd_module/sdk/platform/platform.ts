@@ -5,9 +5,8 @@ import ZiJie from "./zijie/ZiJie";
 import { EventManager } from "../../mgr/EventManager";
 import Native_Android from "./android/Native_Android";
 import Native_IOS from "./ios/Native_IOS";
-import { Common_Struct } from "../../../../common/Common_Struct";
 import QQ from "./qq/QQ";
-import { Time } from "../../../../framework/Time";
+import { Time } from "../../../../frame/Time";
 
 export default class Platform {
     /** token */
@@ -281,7 +280,7 @@ export default class Platform {
      * @example btnList = {wx: [btn1, btn2, btn3], tt: [btn4, btn5, btn6]}, 如果是微信平台,则显示按钮1,2,3， 头条显示4,5,6
      * 
      */
-    showBtnArrayByPlatformt(btnList: Common_Struct.platformBtnList, allHide: boolean = false) {
+    showBtnArrayByPlatformt(btnList: any, allHide: boolean = false) {
         if (!this._sdk) {
             return;
         }
