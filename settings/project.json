@@ -1,4 +1,5 @@
 {
+  "assets-sort-type": "name",
   "collision-matrix": [
     [
       false
@@ -68,7 +69,7 @@
     "Bullet",
     "UI"
   ],
-  "last-module-event-record-time": 1548829492726,
+  "last-module-event-record-time": 1564559292584,
   "simulator-orientation": false,
   "simulator-resolution": {
     "height": 640,

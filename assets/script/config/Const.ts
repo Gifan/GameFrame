@@ -1,66 +1,32 @@
-import { ItemDefine } from "./ItemCfg";
-import { IItem } from "../message/IItem";
-import { SceneDefine } from "./SceneCfg";
-import { AlbumDefine } from "./AlbumCfg";
-
+import { appConfig } from "../../sdk/hd_module/config/AppConfig";
 export namespace Const {
-    //重力加速度
-    export const Gravity = -980;
+    export const APP_ID = "wxc93ee93882288748";
 
-    //发射力量范围,灯密度100
-    export const ShootForceRange = [
-        [6, 8],    //弹珠，密度0.01
-        [250000, 300000],    //忍者镖，密度100
-        [600, 4000],    //炸弹，密度1
-        [800, 800],    //子弹，密度1
-    ];
+    export const designWidth = 720;
+    export const designHeight = 1280;
 
-    //瞄准箭头移动范围
-    export const FingerMoveRange = [50, 200];
+    export const GAME_SCENENAME = "GameScene";
+    export const GameName: string = "热血猎手";
 
-    //每日体力
-    export const DailyEnergy = 99;
+    /**是否开启输出console.log */
+    export const SHOW_LOG = true;
 
-    //分享获得体力数量
-    export const ShareEnergy = 3;
+    //本地缓存key
+    export const STORAGE_SETTING: string = "setting";//设置
+    export const STORAGE_NEWUSER: string = "newuser";//新用户标记
+    export const STORAGE_LOADMENU: string = "loadmenu";//加载一次资源
 
-    //每日体力分享次数
-    export const EnergyShareTimes = 3;
+    export const JsonRemoteUrl: string = `https://cdn-hdgames.9377.com/gameres/t3/p1/release/zijie/${appConfig.app_version}/config/`;
 
-    //每日抽奖次数
-    export const DailyReward = 1;    
+    /**组名 */
+    export const GroupDefault = "Default";
+    export const GroupTerrain = "Terrain";
+    export const GroupDecorate = "Decorate";
+    export const GroupMainRole = "MainRole";
+    export const GroupMonster = "Monster";
+    export const GroupBomb = "Bomb";
+    export const GroupBullet = "Bullet";
+    export const GroupTool = "Tool";
+    export const GroupUI = "UI";
 
-    //初始化数据
-    export const InitSkin = {
-        curSkin : 1001,
-        skins :  [
-            { id : 1001, lv : 1}
-        ]
-    }
-
-    export const InitItem : IItem[] = [
-        { id : ItemDefine.Gold, num : 0 },
-        { id : ItemDefine.Energy, num : DailyEnergy, date : 0 }
-    ];
-
-    export const InitStage = {
-        curAlbum : AlbumDefine.Default,
-        curStage : 0,
-        stages : [
-            { id : SceneDefine.Frist, num : 0 },
-        ]
-    }
-
-    export const InitBG = {
-        curBG : 101,
-        BGs :  [
-            { id : 101, lv : 1}
-        ]
-    }
-
-    export const SettingType = {
-        music: 1,
-        video: 2,
-        shake: 3,
-    }
 }

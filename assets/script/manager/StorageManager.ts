@@ -35,18 +35,10 @@ export class StorageManager {
             return defaultValue;
         }
         //cc.log("getNumber key:" + key, "value:", typeof(value), value);
-        if (typeof(value) != "number") {
-            //cc.error("getNumber error type, key:", key, typeof(value), value);
-            value = Number(value);
-        }
         return value;
     }
 
     public setNumber(key : string, value : number) {
-        if (typeof(value) != "number") {
-            //cc.error("setNumber error type, key:", key, typeof(value), value);
-            value = Number(value);
-        }
         cc.sys.localStorage.setItem(key, value);
     }
 
@@ -60,6 +52,7 @@ export class StorageManager {
     }
 
     public setString(key : string, value : string) {
+        //console.log("setString",key,value)
         cc.sys.localStorage.setItem(key, value);
     }
 
@@ -137,7 +130,6 @@ export class StorageManager {
             return defaultValue;
         }
         key = this._personKey + key;
-        //cc.log("getPrivyNumber:", key);
         return this.getNumber(key, defaultValue);
     }
 
@@ -146,7 +138,7 @@ export class StorageManager {
             cc.error("setPrivyNumber _personKey null")
             return ;
         }
-        key = this._personKey + key;        
+        key = this._personKey + key;
         this.setNumber(key, value);
     }
 

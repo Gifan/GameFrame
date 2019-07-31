@@ -3,15 +3,13 @@ import { TConfig } from "./TConfig";
 
 export interface SignCfg extends IConfig {
 	id:number;
-	Icon:string;
-	item:number;
-	count:number;
-	double:number;
-	doubleType:number;
-	round:number;
-	showType:number;
-	showId:number;
-	name:string;
+	day:string;
+	awardType:number;
+	awardCount:number;
+	awardID:number;
+	extraType:number;
+	extraCount:number;
+	extraTips:string;
 }
 
 

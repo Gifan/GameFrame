@@ -1,5 +1,7 @@
 @Import
 
+import { Const } from "./Const";
+
 class _Cfg {
     @Property
 
@@ -58,6 +60,70 @@ class _Cfg {
         });
     }
 
+    private static cfgLoadNum: number = 0;
+    async initRemoteJson(filename: string, test?: cc.Label, pro?: cc.ProgressBar) {
+        let this1 = this;
+        return new Promise((resolve, reject) => {
+            cc.loader.load(Const.JsonRemoteUrl + filename + ".json", function (err, obj) {
+                if (err) {
+                    cc.loader.loadRes("config/" + filename, cc.JsonAsset, function (err, obj2) {
+                        if (err) {
+                            reject("err");
+                        }
+                        const key = obj2.name;
+                        if (!this1.hasOwnProperty("_" + key)) {
+                            cc.warn("Cfg.initRemoteJson null, " + key);
+                            reject("err");
+                        }
+
+                        let reader = this1["_" + key];
+                        reader.initByMap(obj2.json);
+                        _Cfg.cfgLoadNum += 1;
+                        if (test) test.string = `${_Cfg.cfgLoadNum > 10 ? 10 : _Cfg.cfgLoadNum}%`;
+                        if(pro) pro.progress = (_Cfg.cfgLoadNum > 10 ? 10:_Cfg.cfgLoadNum) / 100;
+                        resolve();
+
+                    })
+                } else {
+                    if (!this1.hasOwnProperty("_" + filename)) {
+                        cc.warn("Cfg.initRemoteJson null, " + filename);
+                        reject("err");
+                    }
+
+                    let reader = this1["_" + filename];
+                    reader.initByMap(obj);
+                    resolve();
+                    _Cfg.cfgLoadNum += 1;
+                    if (test) test.string = `${_Cfg.cfgLoadNum > 10 ? 10 : _Cfg.cfgLoadNum}%`;
+                    if(pro) pro.progress = (_Cfg.cfgLoadNum > 10 ? 10:_Cfg.cfgLoadNum) / 100;
+                }
+            });
+        })
+    }
+    
+    async initLocalJson(filename: string, test?: cc.Label, pro?: cc.ProgressBar) {
+        let this1 = this;
+        return new Promise((resolve, reject) => {
+            cc.loader.loadRes("config/" + filename, cc.JsonAsset, function (err, obj2) {
+                if (err) {
+                    reject("err");
+                }
+                const key = obj2.name;
+                if (!this1.hasOwnProperty("_" + key)) {
+                    cc.warn("Cfg.initRemoteJson null, " + key);
+                    reject("err");
+                }
+
+                let reader = this1["_" + key];
+                reader.initByMap(obj2.json);
+                _Cfg.cfgLoadNum += 1;
+                if (test) test.string = `${_Cfg.cfgLoadNum > 10 ? 10 : _Cfg.cfgLoadNum}%`;
+                if (pro) pro.progress = (_Cfg.cfgLoadNum > 10 ? 10 : _Cfg.cfgLoadNum) / 100;
+                resolve();
+
+            })
+        })
+    }
     public HasTag(t : any, tag : number) : boolean {
         if (t.tags == null) {
             return false;
@@ -73,7 +139,6 @@ class _Cfg {
         const val = array[index] as T;
         return val || defaultVal;
     }
-    
 }
 
 export const Cfg = new _Cfg();

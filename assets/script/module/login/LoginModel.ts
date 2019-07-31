@@ -1,7 +1,23 @@
-import { MVCS } from "../../../frame/mvcs/MVCS";
+import { MVC } from "../../framework/MVC";
 
-export class LoginModel extends MVCS.AbsModel {
+export class LoginModel extends MVC.BaseModel {
+
+    private static _instance: LoginModel = null;
+
     public constructor() {
-        super("Login", MVCS.eDataType.Temp);
+        super();
+        if (LoginModel._instance == null) {
+            LoginModel._instance = this;
+        }
+    }
+    public reset(): void {
+
+    }
+
+    public static get getInstance(): LoginModel {
+        if (LoginModel._instance == null) {
+            LoginModel._instance = new LoginModel();
+        }
+        return LoginModel._instance;
     }
 }

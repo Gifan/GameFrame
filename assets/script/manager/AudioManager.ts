@@ -1,14 +1,14 @@
 import { Cfg } from "../config/Cfg";
 import { Manager } from "./Manager";
-import { Time } from "../../frame/Time";
-import { Notifier } from "../../frame/mvcs/Notifier";
-import { NotifyID } from "../../frame/mvcs//NotifyID";
-import { CallID } from "../CallID";
+import SettingModel from "../module/setting/SettingModel";
+import { Notifier } from "../frame/Notifier";
+import { NotifyID } from "../frame/NotifyID";
 
+const wx = window["wx"];
 class ClipAsset {
     public id: number;
     public clip: cc.AudioClip;
-    public constructor(id:number) {
+    public constructor(id: number) {
         this.id = id;
     }
 }
@@ -17,14 +17,25 @@ declare interface ClipAssetMap {
     [key: number]: ClipAsset;
 }
 
+declare interface GunFireAudios {
+    [key: number]: cc.AudioSource;
+}
+
 export enum AudioType {
-    UI,
-    Voice,
-    Skill,
-    Hit,
-    Buff,
-    Opera,
-    Music,
+    UI = 0,
+    Gun = 1,
+    Gun1 = 2,
+    Gun2 = 3,
+    Gun3 = 4,
+    Gun4 = 5,
+    Hit = 6,
+    Hit1 = 7,
+    Hit2 = 8,
+    Hit3 = 9,
+    Dead = 10,
+    Tool = 11,
+    Laser = 12,
+    Music = 13,
     Max = Music,
 }
 
@@ -32,78 +43,96 @@ export class AudioManager {
     public constructor() {
         const scene = cc.director.getScene();
         let node = new cc.Node('_AudioManager');
+        let test = new cc.Node('_testManager');
         cc.game.addPersistRootNode(node);
+        cc.game.addPersistRootNode(test);
         node.parent = scene;
+        test.parent = scene;
         this._root = node;
-
+        this._testroot = test;
         this._musicSource = node.addComponent(cc.AudioSource);
         this._musicSource.loop = true;
-
         for (let index = 0; index < AudioType.Max; index++) {
             this.addAudioSource();
         }
 
-        //cc.error("AudioManager addListener", NotifyID.App_Pause);
         Notifier.addListener(NotifyID.App_Pause, this.OnAppPause, this);
-        Notifier.addListener(NotifyID.Game_Pause, this.OnGamePause, this);
+        let this1 = this;
+        // if (wx) {
+        //     wx.onAudioInterruptionEnd(() => {
+        //         this1._musicSource.pause();
+        //         this1.resumeMusic();
+        //     })
+        // }
     }
 
     private addAudioSource() {
-        this._audioSources.push(this._root.addComponent(cc.AudioSource));
+        let audiosource = this._root.addComponent(cc.AudioSource);
+        // audiosource.preload = true;
+        this._audioSources.push(audiosource);
         this._audioConfigVolumes.push(1);
     }
 
-    private _root : cc.Node;
-    private _clips : ClipAssetMap = {}
-
+    private _root: cc.Node;
+    private _testroot: cc.Node;
+    private _clips: ClipAssetMap = {};
+    private _audioGunSources: GunFireAudios = cc.js.createMap();
     //背景音乐源
-    private _musicSource : cc.AudioSource;
+    private _musicSource: cc.AudioSource;
+    private _musicId: number;
     //UI音效源
-    private _audioSources : cc.AudioSource[] = [];
+    private _audioSources: cc.AudioSource[] = [];
 
-    private _musicClip:ClipAsset;
+    private _musicClip: ClipAsset;
     //设置界面的音乐大小
     private _musicSettingVolume = 1;
     //配置表里的音乐大小
     private _musicConfigVolume = 1;
     //淡入淡出的音乐大小
     private _musicFadeVolume = 1;
-    public setMusicVolume(volume:number) {
+
+    private _muteMusic: boolean = true;
+    private _muteAudio: boolean = true;
+
+    public setMusicVolume(volume: number) {
         this._musicSettingVolume = volume;
+        cc.audioEngine.setMusicVolume(volume);
         if (this._musicSource != null) {
             this._musicSource.volume = this._musicSettingVolume * this._musicConfigVolume * this._musicFadeVolume;
         }
     }
 
-    private setMusicConfigVolume(volume:number) {
+    private setMusicConfigVolume(volume: number) {
         this._musicConfigVolume = volume;
+        cc.audioEngine.setMusicVolume(volume);
         if (this._musicSource != null) {
             this._musicSource.volume = this._musicSettingVolume * this._musicConfigVolume * this._musicFadeVolume;
         }
     }
 
-    private setMusicFadeVolume(volume:number) {
+    private setMusicFadeVolume(volume: number) {
         this._musicFadeVolume = volume;
-        if (this._musicSource != null) {
-            this._musicSource.volume = this._musicSettingVolume * this._musicConfigVolume * this._musicFadeVolume;
-        }
     }
 
-    private doPlayMusic(clip:ClipAsset) {
+    private doPlayMusic(clip: ClipAsset) {
         if (clip.clip != null) {
             this._musicSource.clip = clip.clip;
             this._musicSource.play();
+            // this._musicId = cc.audioEngine.playMusic(clip.clip, true);
         } else {
             cc.warn("DoPlayMusic clip null")
         }
     }
 
-    public playMusic(id:number, loop = true, replay = true) {
-        if(!replay && this._musicClip != null && this._musicClip.id == id) {
+    public playMusic(id: number, loop = true, replay = true) {
+        if (!replay && this._musicClip != null && this._musicClip.id == id) {
             cc.log("skip the same music:", id)
             return;
         }
-
+        if (this._musicClip != null && id == this._musicClip.id) {// && cc.audioEngine.isMusicPlaying()) {
+            return;
+        }
+        if (!SettingModel.getInstance.muteMusic) return;
         let soundCfg = Cfg.Sound.get(id);
         if (soundCfg == null) {
             cc.error("PlayMusic error config id:", id)
@@ -115,19 +144,18 @@ export class AudioManager {
         }
         this.setMusicConfigVolume(soundCfg.volume);
         this._musicSource.loop = loop;
-        
+
         let clip = this._clips[id];
         if (clip == null) {
-            clip = new ClipAsset(id);
-            this._musicClip = clip;
-            let path = soundCfg.paths[0];
-            Manager.loader.LoadAssetAsync(path, path, cc.AudioClip, (name : string, resource: cc.AudioClip) => {
-                clip.clip = resource;
-                if (clip.id != this._musicClip.id) {
-                    return;
+            let path = soundCfg.path;
+            Manager.loader.LoadAssetAsync(id + "", path, cc.AudioClip, (name: string, resource: cc.AudioClip, asset: string) => {
+                let realid = Number(name);
+                if (!this._clips[realid]) {
+                    this._clips[realid] = new ClipAsset(realid);
+                    this._clips[realid].clip = resource;
                 }
-                this.doPlayMusic(clip);
-            }, this);
+                this.doPlayMusic(this._clips[realid]);
+            }, this, "");
         } else {
             this._musicClip = clip;
             this.doPlayMusic(clip);
@@ -135,190 +163,238 @@ export class AudioManager {
     }
 
     public stopMusic() {
+        cc.audioEngine.stopMusic();
         this._musicSource.stop();
     }
 
     public pauseMusic() {
         this._musicSource.pause();
+        cc.audioEngine.pauseMusic();
     }
 
     public resumeMusic() {
-        this._musicSource.resume();
+        if (SettingModel.getInstance.muteMusic) {
+            // cc.audioEngine.resumeMusic();
+            this._musicSource.resume();
+        }
     }
 
-    public muteMusic(active:boolean) {
-        this._musicSource.mute = active;
+    public muteMusic(active: boolean) {
+        // this._musicSource.mute = !active;
+        if (SettingModel.getInstance.muteMusic) {
+            if (!this._musicClip) {
+                this.playMusic(508, true);
+            }
+            else {
+                this.resumeMusic();
+            }
+        } else {
+            this.pauseMusic();
+        }
     }
 
-    public async preloadMusic(id, callback:(path : string, progress : number) => void = null, target : any = null) {
-        let soundCfg = Cfg.Sound.get(id);        
-        let path = soundCfg.paths[0];
+    public async preloadMusic(id, callback: (path: string, progress: number) => void = null, target: any = null) {
+        let soundCfg = Cfg.Sound.get(id);
+        let path = soundCfg.path;
         let clip = this._clips[id];
         if (clip != null) {
             callback.call(target, path, 1);
             return;
         }
         clip = new ClipAsset(id);
-        return new Promise((resolve, reject)=>{
-            Manager.loader.LoadAssetAsync(path, path, cc.AudioClip, (name : string, resource: cc.AudioClip) => {
-                //cc.log("PreloadMusic:", clip.id, Time.time);
+        return new Promise((resolve, reject) => {
+            Manager.loader.LoadAssetAsync(path, path, cc.AudioClip, (name: string, resource: cc.AudioClip) => {
                 clip.clip = resource;
                 resolve();
-            }, this);
+            }, this, "");
             if (callback != null) {
                 Manager.loader.SetProgressCallback(path, callback, target);
             }
         })
     }
 
-    public musicVolume(){
+    public musicVolume() {
         return this._musicSettingVolume;
     }
 
-//-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
 
-    private _audioClip:ClipAsset;
+    private _audioClip: ClipAsset;
     //设置界面的音乐大小
     private _audioSettingVolume = 1;
     //配置表里的音乐大小
-    private _audioConfigVolumes:number[] = [];
+    private _audioConfigVolumes: number[] = [];
 
-    public setAudioVolume(volume:number) {
-        this._audioSettingVolume = volume;
-        for (let type = 0; type < this._audioSources.length; type++) {
-            const source = this._audioSources[type];
-            source.volume = this._audioSettingVolume * this._audioConfigVolumes[type];
-        }
+    public setAudioVolume(volume: number) {
+        // this._audioSettingVolume = volume;
+        // for (let type = 0; type < this._audioSources.length; type++) {
+        //     const source = this._audioSources[type];
+        //     source.volume = this._audioSettingVolume * this._audioConfigVolumes[type];
+        // }
     }
-
-    private setAudioConfigVolume(volume:number, type = AudioType.UI) {
-        this._audioConfigVolumes[type] = volume;
-        const source = this._audioSources[type];
-        if (source == null) {
-            cc.error("_audioSources null, type:", type);
-            return;
+    public setAudioClip(id, clip: cc.AudioClip) {
+        if (!this._clips[id]) {
+            this._clips[id] = new ClipAsset(id);
         }
-        source.volume = this._audioSettingVolume * this._audioConfigVolumes[type];
+        this._clips[id].clip = clip;
     }
-
-    private doPlayAudio(clip:ClipAsset, type : AudioType) {
+    private setAudioConfigVolume(volume: number, type = AudioType.UI) {
+        // if (this._audioConfigVolumes[type] == volume) return;
+        // this._audioConfigVolumes[type] = volume;
+        // const source = this._audioSources[type];
+        // if (source == null) {
+        //     cc.error("_audioSources null, type:", type);
+        //     return;
+        // }
+        // source.volume = this._audioSettingVolume * this._audioConfigVolumes[type];
+        // cc.audioEngine.setEffectsVolume(volume);
+    }
+    private countGunType = 1;
+    private countHitDeadType = 6;
+    private doPlayAudio(clip: ClipAsset, type: AudioType, playType: number = 1, volume: number) {
         if (clip.clip != null) {
-            this._audioSources[type].clip = clip.clip;
-            this._audioSources[type].play();
+            let audiotype = type;
+            if (type == AudioType.Gun) {
+                this.countGunType++;
+                if (this.countGunType > 5) {
+                    this.countGunType = 1;
+                }
+                audiotype = this.countGunType;
+            }
+            else if (type == AudioType.Hit || type == AudioType.Dead) {
+                this.countHitDeadType++;
+                if (this.countHitDeadType > 10) {
+                    this.countHitDeadType = 6;
+                }
+                audiotype = this.countHitDeadType;
+            }
+            this._audioSources[audiotype].clip = clip.clip;
+            this._audioSources[audiotype].play();
         } else {
             cc.warn("DoPlayAudio clip null")
         }
     }
 
-    private randomPathIndex(soundCfg) : number {
-        if (soundCfg.paths.length == 1) {
-            return 0;
-        }
-
-        if (soundCfg._totalWeight == null) {
-            soundCfg._totalWeight = 0;
-            soundCfg.weights.forEach(weight => {
-                soundCfg._totalWeight += weight;
-            });
-        }
-
-        let total = 0;
-        let rand = Math.random() * soundCfg._totalWeight;
-        for (let index = 0; index < soundCfg.weights.length; index++) {
-            const weight = soundCfg.weights[index];
-            total += weight;
-            if (rand <= total)
-            {
-                return index;
-            }
-        }
-        cc.error(soundCfg.id + " Error SoundCsv weight:" + total + " / " + soundCfg._totalWeight);
-        return 0;
-    }
-
-    public playAudio(id:number, type = AudioType.UI) {
+    public audionum: number = 0;
+    public audioHitNum: number = 0;
+    public audioUINum: number = 0;
+    public playAudio(id: number, type = AudioType.UI, playType: number = 1) {
         let soundCfg = Cfg.Sound.get(id);
         if (soundCfg == null) {
             cc.error("PlayAudio error config id:", id)
             return;
         }
+        if (!this._muteAudio) return;
 
-        if (soundCfg.prob != null && Math.random() > soundCfg.prob) {
-            cc.log("playAudio prob skip, id:", id);
+        if (this.audionum >= 2 && (type == AudioType.Dead)) {
+            return;
+        } else if (this.audioHitNum >= 2 && type == AudioType.Hit) {
+            return;
+        } else if (this.audioUINum >= 2 && type == AudioType.UI) {
             return;
         }
-
+        if (type == AudioType.Dead) {
+            this.audionum++;
+        } else if (type == AudioType.Hit) {
+            this.audioHitNum++;
+        } else if (type == AudioType.UI) {
+            this.audioUINum++;
+        }
         if (soundCfg.volume <= 0) {
             cc.error("soundCfg volume error id:", id)
             soundCfg.volume = 1;
         }
-        this.setAudioConfigVolume(soundCfg.volume, type);
-
-        this._audioSources[type].loop = soundCfg.loop || false;
-        
-        //获取随机到的真正资源
-        let index = this.randomPathIndex(soundCfg);
-        id = id * 10 + index;
-
-        //cc.log("playAudio", id, AudioType[type]);
+        this._audioSources[type].loop = false;
 
         let clip = this._clips[id];
         if (clip == null) {
-            clip = new ClipAsset(id);
-            this._audioClip = clip;
-            let path = soundCfg.paths[index];
-            Manager.loader.LoadAssetAsync(path, path, cc.AudioClip, (name : string, resource: cc.AudioClip) => {
-                //cc.log("loadAudio:", name);
-                clip.clip = resource;
-                if (clip.id != this._audioClip.id) {
-                    //cc.log("playAudio skip, id", clip.id);
-                    return;
-                }
-                this.doPlayAudio(clip, type);
-            }, this);
+            this._clips[id] = new ClipAsset(id);
+            let path = soundCfg.path;
+            // this.setAudioConfigVolume(soundCfg.volume, type);
+            Manager.loader.LoadAssetAsync(id + "", path, cc.AudioClip, (name: string, resource: cc.AudioClip, asset: string) => {
+                let realid = Number(name);
+                this._clips[realid].clip = resource;
+                if (soundCfg.loop) {
+                    this.doPlayGunFire(this._clips[realid].clip, id, soundCfg.volume);
+                } else
+                    this.doPlayAudio(this._clips[realid], type, playType, soundCfg.volume);
+            }, this, "");
         } else {
-            this._audioClip = clip;
-            this.doPlayAudio(clip, type);
+            if (soundCfg.loop) {
+                this.doPlayGunFire(clip.clip, id, soundCfg.volume);
+            } else
+                this.doPlayAudio(clip, type, playType, soundCfg.volume);
         }
+        // }
     }
 
     public stopAudio(type = AudioType.UI) {
         this._audioSources[type].stop();
     }
 
-    public muteAudio(active:boolean, type = AudioType.UI) {
-        this._audioSources[type].mute = active;
+    public muteAudio(active: boolean, type = AudioType.UI) {
+        this._muteAudio = active;
     }
 
-    public audioVolume(){
+    public audioVolume() {
         return this._audioSettingVolume;
     }
 
-    private _appPause = false;
-    private OnAppPause(enable : boolean) : void {
-        //cc.error("OnAppPause", enable, "Time.pause", Time.isPause);
-        if (enable) {
-            if (Time.isPause) {
-                //说明是先暂停，后切换后台
-                return;
+    private OnAppPause(enable: boolean): void {
+        if (!enable && cc.sys.os == cc.sys.OS_ANDROID && window["wx"]) {
+            let clip = this._clips[501];
+            if (clip) {
+                this.doPlayAudio(clip, AudioType.UI, 0, 0.1);
             }
-            this._appPause = true;
-            Notifier.send(NotifyID.Game_Pause, true);      
-        } else {
-            if (!this._appPause) {
-                 //说明是先暂停，后切换后台
-                return;
+        }
+        // if (enable) {
+        //     this.stopAllGunSources();
+        // } else {
+        // if (!FightModel.getInstance.isFighting) {
+        //     setTimeout(() => {
+        //         this.stopAllGunSources();
+        //     }, 1);
+        // }
+        // }
+    }
+
+    public stopAllGunSources() {
+        for (let type in this._audioGunSources) {
+            if (this._audioGunSources[type]) {
+                this._audioGunSources[type].pause();
+                // this._audioGunSources[type].audio.pause();
+                // this._audioGunSources[type]._pausedFlag = true;
             }
-            this._appPause = false;
-            Notifier.send(NotifyID.Game_Pause, false);
         }
     }
 
-    private OnGamePause(enable : boolean) : void {
-        if (enable) {
-            this.pauseMusic();            
+    public stopGunFire(type: number) {
+        if (this._audioGunSources[type])
+            this._audioGunSources[type].pause();
+    }
+
+    public doPlayGunFire(clip: cc.AudioClip, type: number, soundvolume: number) {
+        if (!this._audioGunSources[type]) {
+            let audiosource = this._testroot.addComponent(cc.AudioSource);
+            this._audioGunSources[type] = audiosource;
+            this._audioGunSources[type].clip = clip;
+            this._audioGunSources[type].volume = soundvolume;
+            this._audioGunSources[type].loop = true;
+            this._audioGunSources[type].play();
         } else {
-            this.resumeMusic();
+            if (this._audioGunSources[type].clip) {
+                if (!this._audioGunSources[type].isPlaying) {
+                    this._audioGunSources[type].resume();
+                }
+            }
+        }
+    }
+
+    private OnGamePause(enable: boolean): void {
+        if (enable) {
+            Manager.audio.pauseMusic();
+        } else {
+            Manager.audio.resumeMusic();
         }
     }
 }

@@ -7,10 +7,4 @@ module.exports = {
     Condition : { path :`import { Condition } from "../fight/buffTerm/Condition";\n`, isJson : true },
     "Condition[]" : { path :`import { Condition } from "../fight/buffTerm/Condition";\n`, isJson : true },
     eSkill : { path : `import { eSkill } from "../fight/actor/eSkill";\n`, isJson : false },
-    eItemType : { path : `import { eItemType } from "../common/eItemType";\n`, isJson : false },
-    eItemSourceType : { path : `import { eItemSourceType } from "../common/eItemSourceType";\n`, isJson : false },
-    "eItemSourceType[]" : { path : `import { eItemSourceType } from "../common/eItemSourceType";\n`, isJson : false },
-    Cost : { path : `import { Cost } from "../common/Cost";\n`, isJson : true },
-    "Cost[]" : { path : `import { Cost } from "../common/Cost";\n`, isJson : true },
-
 }

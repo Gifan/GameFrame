@@ -3,11 +3,8 @@ import { TConfig } from "./TConfig";
 
 export interface InviteCfg extends IConfig {
 	id:number;
-	items:number[];
-	counts:number[];
-	doubles:number[];
-	doubleTypes:number[];
-	showType:number;
+	awardType:number;
+	awardCount:number;
 }
 
 

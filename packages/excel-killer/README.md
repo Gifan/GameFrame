@@ -165,9 +165,6 @@ await Cfg.initBySingleJson();
 导出的TS需要手动拷贝到asset/script/config/文件夹下
 ##当导出部分配置表时，生成的Cfg.ts文件是不齐全的，需要自己手动合并
 
-##支持屏蔽导出，id使用#开头
-如：#1001,1,2
-
 ##### 功能配置表sheet:Func
 |id     | name     | define     | view    	  | unlock          | pic_1     | pic_2     | ce
 |编号   | 名称      | 唯一定义    | 类名  	    | 解锁条件        | 展示图片   |           | 行尾

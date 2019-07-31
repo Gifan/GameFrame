@@ -1,0 +1,1 @@
+{"__type__":"cc.JsonAsset","_name":"Item","json":{"1":{"id":1,"define":"Gold","name":"金币","icon":"icon/item/icon_gold","desc":"可用于购买物品","type":1,"max":999999999,"sourceTypes":[],"sourceVals":[]},"2":{"id":2,"define":"Energy","name":"体力","icon":"icon/item/icon_energy","desc":"可用于挑战关卡","type":2,"max":10,"sourceTypes":[],"sourceVals":[]}}}

@@ -40,12 +40,8 @@
                         <ui-input class="flex-1" readonly v-value="importProjectCfgPath"></ui-input>
                         <ui-button @confirm="onBtnClickSelectProjectJsonCfgPath">选择</ui-button>
                     </ui-prop>
-                    <ui-prop name="导出服务器路径" tooltip="将生产的json配置导出到服务器中">
-                        <ui-input class="flex-1" readonly v-value="importServerCfgPath"></ui-input>
-                        <ui-button @confirm="onBtnClickSelectServerJsonCfgPath">选择</ui-button>
-                    </ui-prop>
                     <div class="layout horizontal end-justified">
-                        <ui-button @confirm="onBtnClickImportProjectJsonCfg_Server" class="red">导出服务端配置</ui-button>
+                        <ui-button @confirm="onBtnClickImportProjectJsonCfg_Server" class="red">导入服务端配置</ui-button>
                         <ui-button @confirm="onBtnClickImportProjectJsonCfg_Client" class="red">导入客户端配置</ui-button>
                     </div>
                 </ui-section>
@@ -56,7 +52,7 @@
                     <ui-prop name="Js存放路径:">
                         <ui-input class="flex-1" v-value="jsSavePath" disabled></ui-input>
                         <ui-button class="green" v-on:confirm="onBtnClickOpenJsSavePath">打开</ui-button>
-                        <ui-button class="green" v-on:confirm="onBtnClickOpenJsExportPath">导入</ui-button>
+                        <ui-button class="green" v-on:confirm="onBtnClickOpenJsExportPath">导出</ui-button>
                     </ui-prop>
                     <ui-prop name="合并所有Js"
                              tooltip="  [√]勾选,所有的配置将合并为一个js文件
@@ -156,7 +152,6 @@
         <hr style="margin: 1px 0 1px 0">
         <div class="layout horizontal center justified ">
             <h2 class="start-justified" style="margin: 1px 0 1px 0;color: #2feb21;"> 输出日志 </h2>
-            <ui-button v-on:confirm="onBtnClickClear" class="end-justified red">清空</ui-button>
             <ui-button v-on:confirm="onBtnClickGen" class="end-justified red">生成</ui-button>
         </div>
     </div>

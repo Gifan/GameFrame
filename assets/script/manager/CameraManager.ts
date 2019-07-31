@@ -1,16 +1,14 @@
-import { Time } from "../../frame/Time";
-import { Notifier } from "../../frame/mvcs/Notifier";
-import { NotifyID } from "../../frame/mvcs//NotifyID";
-import { SceneSwitchMsg } from "../message/SceneSwitchMsg";
-import { ListenID } from "../ListenID";
+
+import { Notifier } from "../frame/Notifier";
+import { NotifyID } from "../frame/NotifyID";
+import { Time } from "../frame/Time";
 
 export class CameraManager {
     public constructor() {
-        Notifier.addListener(ListenID.Scene_SwitchFinish, this.onSceneSwitchFinish, this);
         Notifier.addListener(NotifyID.Game_Update, this.onUpdate, this);
     }
 
-    private onSceneSwitchFinish(msg : SceneSwitchMsg) {        
+    private onSceneSwitchFinish() {        
         //cc.log("onSceneSwitchFinish", msg.id);
         this.initCamera(true);
     }

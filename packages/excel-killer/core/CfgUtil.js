@@ -19,7 +19,7 @@ module.exports = {
         let configFilePath = this._getAppCfgPath();
         let b = fs.existsSync(configFilePath);
         if (b) {
-            console.log("cfg path: " + configFilePath);
+            //console.log("cfg path: " + configFilePath);
             fs.readFile(configFilePath, 'utf-8', function (err, data) {
                 if (!err) {
                     let saveData = JSON.parse(data.toString());
@@ -49,13 +49,12 @@ module.exports = {
         this.cfgData.isExportClient = data.isExportClient;
         this.cfgData.isExportServer = data.isExportServer;
         this.cfgData.importProjectCfgPath = data.importProjectCfgPath;
-        this.cfgData.importServerCfgPath = data.importServerCfgPath;
         this._save();
     },
     _save() {
         let savePath = this._getAppCfgPath();
         fs.writeFileSync(savePath, JSON.stringify(this.cfgData));
-        console.log("save ok!");
+        //console.log("save ok!");
     },
     _getAppCfgPath() {
         let userDataPath = null;

@@ -1,68 +1,154 @@
-import { MVCS } from "../../../frame/mvcs/MVCS";
-import { Notifier } from "../../../frame/mvcs/Notifier";
-import { NotifyID } from "../../../frame/mvcs/NotifyID";
-import { Time } from "../../../frame/Time";
+
 import { ListenID } from "../../ListenID";
 import { CallID } from "../../CallID";
-import { Cfg } from "../../config/Cfg";
-import { SettingUI } from "./uiGen/SettingUI";
-import { ScaleTransition } from "../../../frame/mvcs/transition/ScaleTransition";
-import { Const } from "../../config/Const";
+import { Manager } from "../../manager/Manager";
+import { Common_UIPath } from "../../common/Common_Define";
+import { HD_MODULE } from "../../sdk/hd_module/hd_module";
+import { HDDefaultUserInfo } from "../../sdk/hd_module/config/AppConfig";
+import { AlertManager } from "../../alert/AlertManager";
+import { Util } from "../../utils/Util";
+import { Notifier } from "../../frame/Notifier";
+import { NotifyID } from "../../frame/NotifyID";
+import { MVC } from "../../frame/MVC";
+import { UIManager } from "../../frame/UIManager";
 
-export class SettingView extends MVCS.AbsView {
-    public constructor() {
-        super("ui/SettingUI@Setting", MVCS.eUILayer.Panel, MVCS.eUIQueue.Panel, new ScaleTransition())
-    }
-    private _ui : SettingUI;
-    protected onLoad() : void {
-        let ui = new SettingUI(this.node);
-        this._ui = ui;
-        ui.toggle_music.SetListener(this.onClickMusic, this);
-        ui.toggle_audio.SetListener(this.onClickAudio, this);
-        ui.toggle_shake.SetListener(this.onClickShake, this);
-        ui.shade.SetListener(this.close, this);
-        // ui.btn_back.SetListener(this.close, this);
+const { ccclass, property } = cc._decorator;
+
+@ccclass
+export default class SettingView extends MVC.BaseView {
+
+    @property(cc.Toggle)
+    musicToggle: cc.Toggle = null;
+
+    @property(cc.Toggle)
+    audioToggle: cc.Toggle = null;
+
+    @property(cc.Toggle)
+    shakeToggle: cc.Toggle = null;
+
+    @property(cc.Toggle)
+    hurtToggle: cc.Toggle = null;
+
+    @property(cc.Label)
+    lblCustomServer: cc.Label = null;
+
+    @property(cc.Label)
+    lblUserId: cc.Label = null;
+
+    private _customServer: string = "";
+    private _userId: string = "";
+    private _pasteBtnId: string = "";
+
+    protected changeListener(enable: boolean): void {
+        //Notifier.changeListener(enable, NotifyID.Game_Update, this.onUpdate, this);
+        Notifier.changeListener(enable, NotifyID.SDK_Banner_Resize, this.resizeBtnPos, this);
     }
 
-    protected onUnload() : void {
-        
+    resizeBtnPos() {
+        let closeNode = cc.find("know", this.node);
+        // closeNode.position = cc.v2(closeNode.x, WXSDK.bannerY);
+        closeNode.active = true;
     }
 
-    // protected changeListener(enable : boolean) : void {
-    //     // Notifier.changeListener(enable, ListenID.Setting_Init, this.InitChecked, this);
-    // }
-    
     /*
      * 打开界面回调，每次打开只调用一次
      */
-    protected onOpen() : void {
-        super.onOpen();
+    public onOpen(args: any): void {
+        super.onOpen(args);
+        let muteMusic: boolean = Notifier.call(CallID.Setting_IsMuteMusic);
+        this.musicToggle.isChecked = muteMusic;
+        let muteaudio: boolean = Notifier.call(CallID.Setting_IsMuteAudio);
+        this.audioToggle.isChecked = muteaudio;
+        let muteshake: boolean = Notifier.call(CallID.Setting_IsBlockShake);
+        this.shakeToggle.isChecked = muteshake;
+        let hurtShow: boolean = Notifier.call(CallID.Setting_IsHurtShow);
+        this.hurtToggle.isChecked = hurtShow;
+        this.onFlush();
+        Notifier.send(ListenID.ShowBanner, 3);
+    }
 
-        let ui = this._ui;
-        let muteMusic : boolean = Notifier.call(CallID.Setting_IsMuteMusic);
-        ui.toggle_music.InitChecked(!muteMusic);
-        let muteAudio : boolean = Notifier.call(CallID.Setting_IsMuteAudio);
-        ui.toggle_audio.InitChecked(!muteAudio);
-        let blockShake : boolean = Notifier.call(CallID.Setting_IsBlockShake);
-        ui.toggle_shake.InitChecked(!blockShake);
+    public start() {
+
     }
 
     /*
      * 关闭界面回调，每次打开只调用一次
      */
-    protected onClose() : void {
-       super.onClose();
+    public onClose(): void {
+        Manager.audio.playAudio(501);
+        super.onClose();
+        Notifier.send(ListenID.HideBanner);
     }
 
-    private onClickMusic(isChecked : boolean){
-        Notifier.send(ListenID.Setting_MuteMusic, !isChecked);
+    private onClickMusic(target: cc.Toggle) {
+        Manager.audio.playAudio(501);
+        Notifier.send(ListenID.Setting_MuteMusic, target.isChecked);
     }
 
-    private onClickAudio(isChecked : boolean){
-        Notifier.send(ListenID.Setting_MuteAudio, !isChecked);
+    private onClickAudio(target: cc.Toggle) {
+        Manager.audio.playAudio(501);
+        Notifier.send(ListenID.Setting_MuteAudio, target.isChecked);
     }
 
-    private onClickShake(isChecked : boolean){
-        Notifier.send(ListenID.Setting_BlockShake, !isChecked);
+    private onClickShake(target: cc.Toggle) {
+        Manager.audio.playAudio(501);
+        Notifier.send(ListenID.Setting_BlockShake, target.isChecked);
+    }
+
+    private onClickHurt(target: cc.Toggle) {
+        Manager.audio.playAudio(501);
+        Notifier.send(ListenID.Setting_HurtShow, target.isChecked);
+    }
+
+    onBtnNoticeClick() {
+        Manager.audio.playAudio(501);
+        UIManager.Open(Common_UIPath.NoticeUI, MVC.eTransition.Default, MVC.eUILayer.Tips);
+    }
+
+    /** 复制到剪贴板(原生平台可用) */
+    uiPasteBoard(e, d) {
+        let str = '';
+        if (d == `1`) {
+            if (this._pasteBtnId == d) return;
+            str = this._customServer;
+        } else {
+            if (this._pasteBtnId == d) return;
+            str = this._userId;
+        }
+        this._pasteBtnId == d;//不能一重复点复制，会卡死
+
+        HD_MODULE.getPlatform().uiPasteBoard(str);
+        AlertManager.showNormalTips("复制到剪贴板成功");
+    }
+
+    onFlush(type: string = `all`) {
+        switch (type) {
+            case `all`: {
+                this._updateLblCustomServer();
+                this._updateLblUserId();
+                break;
+            }
+        }
+    }
+
+    private _updateLblCustomServer() {
+        if (this.lblCustomServer) {
+            let str = "heidong20190501";
+            this.lblCustomServer.string = str;
+            this._customServer = str;
+        }
+    }
+
+    private _updateLblUserId() {
+        if (this.lblUserId) {
+            let str = HDDefaultUserInfo.open_id;
+            if (HD_MODULE.PLATFORM.isWeChat() || HD_MODULE.PLATFORM.isZiJie()) {
+                str = HD_MODULE.PLATFORM.getOpenId();
+            }
+            this._userId = str;
+            if (str) {
+                this.lblUserId.string = Util.normalName(str, 10);
+            }
+        }
     }
 }

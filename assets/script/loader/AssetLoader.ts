@@ -1,7 +1,4 @@
 import { ILoader } from "./ILoader";
-import { Time } from "../../frame/Time";
-import { Notifier } from "../../frame/mvcs/Notifier";
-import { NotifyID } from "../../frame/mvcs/NotifyID";
 
 declare interface RefMap {
     [key: string]: number;
@@ -72,11 +69,6 @@ export class AssetLoader implements ILoader {
     protected m_assetName:string;
     protected m_assetType:typeof cc.Asset;
     public Init(assetName:string, assetPath:string, assetType:typeof cc.Asset) : void {
-        if (isNullOrEmpty(assetPath)) {
-            cc.error("AssetLoader.Init path null! type:" + assetType );
-            return;
-        }
-
         if (this.m_assetPath != null) {
             cc.error("AssetLoader.Init mult times! path old:" + this.m_assetPath + "\nnew:" + assetPath);
             return;
@@ -85,9 +77,6 @@ export class AssetLoader implements ILoader {
         this.m_assetName = assetName;
         this.m_assetType = assetType;
     }
-
-    //最大失败重试次数
-    private _maxFailTimes = 5;
 
     public LoadAsync() : void {
         if (this._isLoaded) {
@@ -115,14 +104,6 @@ export class AssetLoader implements ILoader {
             (error: Error, resource: any) : void => {
                 if (error) {
                     cc.error("AssetLoader.LoadAsync error:", this.m_assetPath, error);
-                    //加载失败后重新加载
-                    this.m_progress = 0;
-                    if (this._maxFailTimes > 0) {
-                        --this._maxFailTimes;
-                        Time.delay(0.1 * (5 - this._maxFailTimes), this.LoadAsync, null, this);
-                    } else {
-                        Notifier.send(NotifyID.DownLoad_Fail, this.m_assetPath)
-                    }
                     return;
                 }
         

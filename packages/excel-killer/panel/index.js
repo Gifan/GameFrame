@@ -22,71 +22,6 @@ const Globby = require('globby');
 let dirClientName = "client";
 let dirServerName = "server";
 
-//! 将srcPath路径的文件复制到tarPath
-var copyFile = function(srcPath, tarPath, cb) {
-    var rs = fs.createReadStream(srcPath);
-    rs.on('error', function(err) {
-        if (err) {
-        console.log('read error', srcPath);
-        }
-        cb && cb(err);
-    })
-
-    var ws = fs.createWriteStream(tarPath);
-    ws.on('error', function(err) {
-        if (err) {
-        console.log('write error', tarPath);
-        }
-        cb && cb(err);
-    })
-    ws.on('close', function(ex) {
-        cb && cb(ex);
-    })
-
-    rs.pipe(ws);
-}
-
-//! 将srcDir文件下的文件、文件夹递归的复制到tarDir下
-var copyFolder = function(srcDir, tarDir, cb) {
-    fs.readdir(srcDir, function(err, files) {
-      var count = 0;
-      var checkEnd = function() {
-        ++count == files.length && cb && cb();
-      }
-   
-      if (err) {
-        checkEnd();
-        return;
-      }
-   
-      files.forEach(function(file) {
-        var srcPath = path.join(srcDir, file);
-        var tarPath = path.join(tarDir, file);
-   
-        fs.stat(srcPath, function(err, stats) {
-          if (stats.isDirectory()) {
-            console.log('mkdir', tarPath);
-            fs.mkdir(tarPath, function(err) {
-              if (err) {
-                console.log(err);
-                return;
-              }
-   
-              copyFolder(srcPath, tarPath, checkEnd);
-            });
-          } else {
-            copyFile(srcPath, tarPath, checkEnd);
-          }
-        });
-      });
-   
-      //为空时直接回调
-      files.length === 0 && cb && cb();
-    });
-  }
-  
-
-
 Editor.Panel.extend({
     style: fs.readFileSync(Editor.url('packages://' + packageName + '/panel/index.css', 'utf8')) + "",
     template: fs.readFileSync(Editor.url('packages://' + packageName + '/panel/index.html', 'utf8')) + "",
@@ -136,8 +71,8 @@ Editor.Panel.extend({
                 excelArray: [],
                 excelFileArr: [],
 
+
                 importProjectCfgPath: null,
-                importServerCfgPath: null,
             },
             methods: {
                 ////////////////////////////导入到项目////////////////////////////////////////////
@@ -155,27 +90,13 @@ Editor.Panel.extend({
                         }
                     }
                 },
-                onBtnClickSelectServerJsonCfgPath() {
-                    let res = Editor.Dialog.openFile({
-                        title: "选择服务器配置存放目录",
-                        defaultPath: path.join(Editor.Project.path, "assets"),
-                        properties: ['openDirectory'],
-                    });
-                    if (res !== -1) {
-                        let dir = res[0];
-                        if (dir !== this.importServerCfgPath) {
-                            this.importServerCfgPath = dir;
-                            this._saveConfig();
-                        }
-                    }
-                },
                 onBtnClickImportProjectJsonCfg_Server() {
-                    this._importServerJsonCfg("server");
+                    this._importJsonCfg("server");
                 },
                 onBtnClickImportProjectJsonCfg_Client() {
-                    this._importProjectJsonCfg("client");
+                    this._importJsonCfg("client");
                 },
-                _importProjectJsonCfg(typeDir) {
+                _importJsonCfg(typeDir) {
                     if (!fs.existsSync(this.importProjectCfgPath)) {
                         this._addLog("导入项目路径不存在:" + this.importProjectCfgPath);
                         return;
@@ -203,7 +124,7 @@ Editor.Panel.extend({
                         Editor.assetdb.import(files, importPath,
                             function (err, results) {
                                 results.forEach(function (result) {
-                                    console.log(result.path);
+                                    //console.log(result.path);
                                     // result.uuid
                                     // result.parentUuid
                                     // result.url
@@ -213,26 +134,7 @@ Editor.Panel.extend({
                             }.bind(this));
                     } else {
                         this._addLog("非项目路径,无法导入 : " + this.importProjectCfgPath);
-                    }                    
-                },
-                _importServerJsonCfg(typeDir) {
-                    if (!fs.existsSync(this.importServerCfgPath)) {
-                        this._addLog("导出服务器路径不存在:" + this.importServerCfgPath);
-                        return;
                     }
-
-                    if (!this.isExportJson) {
-                        this._addLog("[Warning] 您未勾选导出Json配置,可能导入的配置时上个版本的!");
-                    }
-                    // 检索所有的json配置
-                    let clientDir = path.join(this.jsonSavePath, typeDir);
-                    if (!fs.existsSync(clientDir)) {
-                        this._addLog("配置目录不存在:" + clientDir);
-                        return;
-                    }
-                    //Editor.log("files", files, importPath)
-                    this._addLog("导出:" + this.importServerCfgPath + " \n from:" + clientDir);
-                    copyFolder(clientDir, this.importServerCfgPath);
                 },
                 ////////////////////////////////////////////////////////////////////////
                 _addLog(str) {
@@ -243,7 +145,7 @@ Editor.Panel.extend({
                 },
                 onBtnClickTellMe() {
                     // let data = nodeXlsx.parse(path.join(this.excelRootPath, 'test2.xlsx'));
-                    // console.log(data);
+                    // //console.log(data);
                     // return;
                     let url = "http://wpa.qq.com/msgrd?v=3&uin=774177933&site=qq&menu=yes";
                     Electron.shell.openExternal(url);
@@ -263,7 +165,6 @@ Editor.Panel.extend({
                         isExportClient: this.isExportClient,
                         isExportServer: this.isExportServer,
                         importProjectCfgPath: this.importProjectCfgPath,
-                        importServerCfgPath : this.importServerCfgPath,
                     };
                     CfgUtil.saveCfgByData(data);
                 },
@@ -272,19 +173,19 @@ Editor.Panel.extend({
                 },
                 _watchDir(event, filePath) {
                     return;
-                    console.log("监控文件....");
-                    console.log(event, filePath);
+                    //console.log("监控文件....");
+                    //console.log(event, filePath);
                     let ext = path.extname(filePath);
                     if (ext === ".xlsx" || ext === ".xls") {
                         this._onAnalyzeExcelDirPath(this.excelRootPath);
                     }
                 },
-                onBtnClickHelpDoc(){
+                onBtnClickHelpDoc() {
                     let url = "https://github.com/tidys/CocosCreatorPlugins/tree/master/packages/excel-killer/README.md";
                     Electron.shell.openExternal(url);
                 },
                 _initPluginCfg() {
-                    console.log("initCfg");
+                    //console.log("initCfg");
                     CfgUtil.initCfg(function (data) {
                         if (data) {
                             this.excelRootPath = data.excelRootPath || "";
@@ -313,7 +214,6 @@ Editor.Panel.extend({
                             this.isExportClient = data.isExportClient || false;
                             this.isExportServer = data.isExportServer || false;
                             this.importProjectCfgPath = data.importProjectCfgPath || null;
-                            this.importServerCfgPath = data.importServerCfgPath || null;
                             this.checkJsFileExist();
                             this.checkJsonAllCfgFileExist();
                         } else {
@@ -545,7 +445,7 @@ Editor.Panel.extend({
                 onStopTouchEvent(event) {
                     event.preventDefault();
                     event.stopPropagation();
-                    // console.log("dragOver");
+                    // //console.log("dragOver");
                 },
                 onBtnClickSelectSheet(event) {
                     let b = event.currentTarget.value;
@@ -598,7 +498,7 @@ Editor.Panel.extend({
                         Editor.assetdb.import(files, importPath,
                             function (err, results) {
                                 results.forEach(function (result) {
-                                    console.log(result.path);
+                                    //console.log(result.path);
                                     // result.uuid
                                     // result.parentUuid
                                     // result.url
@@ -617,16 +517,16 @@ Editor.Panel.extend({
                 },
                 onBtnClickClear() {
                     let jsPath1 = path.join(this.jsSavePath, dirClientName);
-                    fs.emptyDirSync(jsPath1); 
+                    fs.emptyDirSync(jsPath1);
 
                     let jsPath2 = path.join(this.jsSavePath, dirServerName);
-                    fs.emptyDirSync(jsPath2); 
+                    fs.emptyDirSync(jsPath2);
 
                     let jsonPath1 = path.join(this.jsonSavePath, dirClientName);
-                    fs.emptyDirSync(jsonPath1); 
+                    fs.emptyDirSync(jsonPath1);
 
                     let jsonPath2 = path.join(this.jsonSavePath, dirServerName);
-                    fs.emptyDirSync(jsonPath2); 
+                    fs.emptyDirSync(jsonPath2);
                 },
                 _parseValue(type, value, importData) {
                     if (type[0] == "?") {
@@ -643,7 +543,7 @@ Editor.Panel.extend({
                                 }
                             } else {
                                 value = false;
-                            }                            
+                            }
                             break;
                         case "define":
                             //无需处理
@@ -673,14 +573,14 @@ Editor.Panel.extend({
                                 value = JSON.parse(value);
                             } catch (error) {
                                 Editor.error("_parseValue error json, type:" + type, "value:" + value);
-                            } 
+                            }
                             break;
                         case "cc.Vec2":
                             try {
                                 v = JSON.parse(value);
                             } catch (error) {
                                 Editor.error("_parseValue error json, type:" + type, "value:" + value);
-                            } 
+                            }
                             value = new cc.v2(v[0], v[1]);
                             break;
                         case "cc.Vec3":
@@ -688,10 +588,10 @@ Editor.Panel.extend({
                                 v = JSON.parse(value);
                             } catch (error) {
                                 Editor.error("_parseValue error json, type:" + type, "value:" + value);
-                            } 
+                            }
                             value = new cc.v3(v[0], v[1], v[2]);
-                            break;  
-                        default:                            
+                            break;
+                        default:
                             let extendImport = extendClass[type];
                             if (extendImport != null) {
                                 if (extendImport.isJson) {
@@ -699,7 +599,7 @@ Editor.Panel.extend({
                                         value = JSON.parse(value);
                                     } catch (error) {
                                         Editor.error("_parseValue error json, type:" + type, "value:" + value);
-                                    }                                    
+                                    }
                                 }
                             } else {
                                 Editor.log("_parseValue untreated type:" + type, "value:" + value);
@@ -707,7 +607,7 @@ Editor.Panel.extend({
                                     value = JSON.parse(value);
                                 } catch (error) {
                                     Editor.error("_parseValue error json, type:" + type, "value:" + value);
-                                } 
+                                }
                             }
                             break;
                     }
@@ -737,7 +637,7 @@ Editor.Panel.extend({
                         if (arraySlicePos > 0 && parseInt(key.substr(arraySlicePos + 1)) != null) {
                             if (parseInt(key.substr(arraySlicePos + 1)) == 1) {
                                 key = key.slice(0, arraySlicePos) + "s";
-                                type = type + "[]";                            
+                                type = type + "[]";
                             } else {
                                 continue;
                             }
@@ -745,7 +645,7 @@ Editor.Panel.extend({
 
                         if (type[0] == "?") {
                             type = type.substr(1);
-                            sheetClassData += "\n\t" + key + "?:" + type + ";";                            
+                            sheetClassData += "\n\t" + key + "?:" + type + ";";
                         } else {
                             sheetClassData += "\n\t" + key + ":" + type + ";";
                         }
@@ -766,14 +666,17 @@ Editor.Panel.extend({
                             continue;
                         } else {
                             if (lineData.length < title.length) {
+                                Editor.error("[Error] 发现第" + i + "行缺少字段,跳过该行数据配置.");
                                 this._addLog(itemSheet.name + "*" + itemSheet.sheet + "[Error] 发现第" + i + "行缺少字段,跳过该行数据配置.");
                                 continue;
                             } else if (lineData.length > title.length) {
+                                Editor.error("[Error] 发现第" + i + "行多余字段,跳过该行数据配置.");
                                 this._addLog(itemSheet.name + "*" + itemSheet.sheet + "[Error] 发现第" + i + "行多余字段,跳过该行数据配置.");
                                 continue;
                             }
 
                             if (lineData[0][0] == "#") {
+                                Editor.error(itemSheet.name + "*" + itemSheet.sheet + "[Log] 发现第" + i + "行需要跳过.id:" + lineData[0]);
                                 this._addLog(itemSheet.name + "*" + itemSheet.sheet + "[Log] 发现第" + i + "行需要跳过.id:" + lineData[0]);
                                 continue;
                             }
@@ -795,11 +698,11 @@ Editor.Panel.extend({
                                 let key = title[j];
                                 let value = lineData[j];
                                 let type = types[j];
-                                if (type == "define" || type == "?define" ) {
+                                if (type == "define" || type == "?define") {
                                     if (value === undefined) {
                                         continue;
                                     }
-                                    sheetDefineData[value] = lineData[0];                                    
+                                    sheetDefineData[value] = lineData[0];
                                 }
 
                                 //合并为数组
@@ -820,7 +723,8 @@ Editor.Panel.extend({
                                     if (value === undefined) {
                                         //value = "";
                                         if (type[0] != "?") {
-                                            this._addLog("[Error] 发现空单元格:" + itemSheet.name + "*" + itemSheet.sheet + " => (" + key + "," + (i + 1) + ")");                                            
+                                            Editor.error("[Error] 发现空单元格:" + itemSheet.name + "*" + itemSheet.sheet + " => (" + key + "," + (i + 1) + ")");
+                                            this._addLog("[Error] 发现空单元格:" + itemSheet.name + "*" + itemSheet.sheet + " => (" + key + "," + (i + 1) + ")");
                                         }
                                         continue;
                                     }
@@ -918,6 +822,7 @@ Editor.Panel.extend({
                             if (lineData.length !== title.length) {
                                 this._addLog(`配置表头和配置数据不匹配:${itemSheet.name} - ${itemSheet.sheet} : 第${i + 1}行`);
                                 this._addLog("跳过该行数据");
+                                Editor.error(`配置表头和配置数据不匹配:${itemSheet.name} - ${itemSheet.sheet} : 第${i + 1}行`);
                                 continue;
                             }
 
@@ -1005,7 +910,7 @@ Editor.Panel.extend({
                 },
                 // 生成配置
                 onBtnClickGen() {
-                    console.log("onBtnClickGen");
+                    //console.log("onBtnClickGen");
                     // 参数校验
                     if (this.excelArray.length <= 0) {
                         this._addLog("未发现要生成的配置!");
@@ -1057,7 +962,7 @@ Editor.Panel.extend({
                     for (let k in this.excelArray) {
                         let itemSheet = this.excelArray[k];
                         if (!itemSheet.isUse) {
-                            console.log("忽略配置: " + itemSheet.fullPath + ' - ' + itemSheet.sheet);
+                            //console.log("忽略配置: " + itemSheet.fullPath + ' - ' + itemSheet.sheet);
                             continue;
                         }
                         let excelData = nodeXlsx.parse(itemSheet.fullPath);
@@ -1067,12 +972,12 @@ Editor.Panel.extend({
                                 sheetData = excelData[j].data;
                             }
                         }
-                        
+
                         if (sheetData) {
-                            
+
                         } else {
                             this._addLog("未发现数据");
-                            continue;                              
+                            continue;
                         }
 
                         if (sheetData.length <= 3) {
@@ -1091,6 +996,7 @@ Editor.Panel.extend({
                                             if (jsonAllSaveDataClient[itemSheet.sheet] === undefined) {
                                                 jsonAllSaveDataClient[itemSheet.sheet] = jsonSaveData;
                                             } else {
+                                                Editor.warn("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                                 this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                             }
                                         } else {
@@ -1098,6 +1004,7 @@ Editor.Panel.extend({
                                             if (jsonAllSaveDataServer[itemSheet.sheet] === undefined) {
                                                 jsonAllSaveDataServer[itemSheet.sheet] = jsonSaveData;
                                             } else {
+                                                Editor.warn("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                                 this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                             }
                                         }
@@ -1121,6 +1028,7 @@ Editor.Panel.extend({
                                             if (jsAllSaveDataClient[itemSheet.sheet] === undefined) {
                                                 jsAllSaveDataClient[itemSheet.sheet] = sheetJsData;
                                             } else {
+                                                Editor.warn("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                                 this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                             }
                                         } else {
@@ -1128,6 +1036,7 @@ Editor.Panel.extend({
                                             if (jsAllSaveDataServer[itemSheet.sheet] === undefined) {
                                                 jsAllSaveDataServer[itemSheet.sheet] = sheetJsData;
                                             } else {
+                                                Editor.warn("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                                 this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                             }
                                         }
@@ -1151,6 +1060,7 @@ Editor.Panel.extend({
                                         if (jsAllSaveDataClient[itemSheet.sheet] === undefined) {
                                             jsAllSaveDataClient[itemSheet.sheet] = sheetJsData;
                                         } else {
+                                            Editor.warn("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                             this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                         }
                                     } else {
@@ -1158,6 +1068,7 @@ Editor.Panel.extend({
                                         if (jsAllSaveDataServer[itemSheet.sheet] === undefined) {
                                             jsAllSaveDataServer[itemSheet.sheet] = sheetJsData;
                                         } else {
+                                            Editor.warn("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                             this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
                                         }
                                     }
@@ -1256,26 +1167,26 @@ Editor.Panel.extend({
                     //Editor.log("className:", JSON.stringify(importData));
 
                     let saveStr = TemplateReader.replace(/@TypeName/g, className)
-                                        .replace(/@ClassDefine/g, classData).replace(/@Import/g, importStr);
+                        .replace(/@ClassDefine/g, classData).replace(/@Import/g, importStr);
 
                     if (Object.keys(defineData).length > 0) {
                         let defineStr = "export const " + className + "Define = " + JSON.stringify(defineData, null, 4);
-                        saveStr = saveStr.replace(/@ConstDefine/g, defineStr); 
+                        saveStr = saveStr.replace(/@ConstDefine/g, defineStr);
                     } else {
-                        saveStr = saveStr.replace(/@ConstDefine/g, "");   
+                        saveStr = saveStr.replace(/@ConstDefine/g, "");
                     }
 
                     if (cfgData != null) {
-                        let cfgStr = JSON.stringify(cfgData, null, 4);    
-                        cfgStr = TemplateConstructor.replace(/@Data/g, cfgStr); 
+                        let cfgStr = JSON.stringify(cfgData, null, 4);
+                        cfgStr = TemplateConstructor.replace(/@Data/g, cfgStr);
                         saveStr = saveStr.replace(/@Constructor/g, cfgStr);
                     } else {
-                        saveStr = saveStr.replace(/@Constructor/g, "");   
+                        saveStr = saveStr.replace(/@Constructor/g, "");
                     }
 
                     //Editor.log(className, "\n", saveStr);                    
                     fs.writeFileSync(saveFileFullPath, saveStr);
-                    this._addLog("[TypeScript]" + saveFileFullPath);                    
+                    this._addLog("[TypeScript]" + saveFileFullPath);
                 },
                 _onSaveTypeScriptCatalogFile(saveFileFullPath, classData) {
                     let importBuilder = "";
@@ -1289,10 +1200,10 @@ Editor.Panel.extend({
                     }
 
                     let catalogBuilder = TemplateCatalog.replace(/@Import/g, importBuilder)
-                                            .replace(/@Property/g, propertyBuilder);
-                 
+                        .replace(/@Property/g, propertyBuilder);
+
                     fs.writeFileSync(saveFileFullPath, catalogBuilder);
-                    this._addLog("[TypeScript] Catalog" + saveFileFullPath);                    
+                    this._addLog("[TypeScript] Catalog" + saveFileFullPath);
                 }
             },
         });

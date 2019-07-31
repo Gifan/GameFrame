@@ -1,262 +1,209 @@
-import { XHSDK } from "../../sdk/XHSDK";
-import { XHTiger } from "../../sdk/XHTiger";
-import { WeChatSDK } from "../../sdk/WeChatSDK";
-import { Notifier } from "../../frame/mvcs/Notifier";
-import { NotifyID } from "../../frame/mvcs//NotifyID";
+import { Const } from "../config/Const";
+import { GameVoManager } from "../manager/GameVoManager";
+import { AlertManager, AlertType } from "../alert/AlertManager";
+import NetAdapter from "../adpapter/NetAdapter";
+import { ListenID } from "../ListenID";
+import { HD_MODULE } from "../sdk/hd_module/hd_module";
+import { Cfg } from "../config/Cfg";
+import { ShareCode, Common_UIPath } from "../common/Common_Define";
 import { Manager } from "../manager/Manager";
-import { ToggleCell } from "../../frame/extension/ToggleCell";
-import { StorageID } from "../StorageID";
-import { SDKKey } from "../SDKKey";
-import { AppConfig } from "../../sdk/AppConfig";
-import { Time } from "../../frame/Time";
-import { CellPool } from "../../frame/extension/CellPool";
-import { CallID } from "../CallID";
+import { Util } from "../utils/Util";
+import { Notifier } from "../frame/Notifier";
+import { Time } from "../frame/Time";
 
-export class SDKLauncher {
-    //首屏广告
-    private _btnFirst : cc.Button;
-    //广告节点
-    private _nodeAd : cc.Node;
-    //跳过按钮
-    private _btnSkip : cc.Button;
-
-    //授权
-    private _nodeAuth : cc.Node;
-
-    private _testRoot : cc.Node;
-    private _curServer : ToggleCell;
-
-    public constructor() {
-        let node_first = cc.find("Canvas/btn_first");
-        this._btnFirst = node_first.getComponent(cc.Button);
-        this._nodeAd = cc.find("Canvas/Ad");
-        this._nodeAd.active = false;
-        let node_skip = this._nodeAd.getChildByName("btn_skip");
-        this._btnSkip = node_skip.getComponent(cc.Button);
-
-        this._nodeAuth = cc.find("auth");
-        this._nodeAuth.active = false;
-        cc.game.addPersistRootNode(this._nodeAuth);
-
-        this._testRoot = cc.find("Canvas/TestLogin");
-        this._testRoot.active = false;
-        let btn_login = this._testRoot.getChildByName("btn_login");
-        btn_login.on("click", this.onClickLogin, this);
-
-        let input_account = this._testRoot.getChildByName("input_account");
-        input_account.on('text-changed', this.onEditingReturn, this);
-
-        let localId = Manager.storage.getString(StorageID.LocalId);
-        if (isNullOrEmpty(localId)) {
-            localId = Date.now().toString();
-            Manager.storage.setString(StorageID.LocalId, localId);
-        }
-        let edit = input_account.getComponent(cc.EditBox);
-        edit.string = localId;
-
-        let serverIndex = Manager.storage.getNumber(StorageID.ServerIndex, 0);
-        let menu_servers = this._testRoot.getChildByName("menu_servers");
-        let toggle = new ToggleCell(menu_servers.children[0]);
-        let pool = new CellPool<ToggleCell>(ToggleCell, toggle, menu_servers);
-        for (let index = 0; index < AppConfig.Servers.length; index++) {
-            const server = AppConfig.Servers[index];
-            const item = pool.Pop();
-            item.mainText.string = server.name;
-            item.index = index;
-            if (serverIndex == index) {
-                item.isChecked = true;
-                this._curServer = item;
-            }
-            item.SetListenerWithSelf(this.onClickServer, this);
-        }
-
-        //XHSDK.switchRequestLog(false);
-
-        Notifier.setCall(NotifyID.SDK_IsSwitchOpen, this.isSwitchOpen, this);
-
-        Notifier.addListener(NotifyID.SDK_ReqShare, this.share, this);
-        Notifier.addListener(NotifyID.SDK_ReqAuth, this.WXLogin, this);
-        Notifier.addListener(NotifyID.SDK_CreateTiger, this.createTiger, this);
-        Notifier.addListener(NotifyID.SDK_CleanTiger, this.cleanTiger, this);
-        Notifier.addListener(NotifyID.SDK_LoadingLog, this.loadingLog, this);
-        Notifier.addListener(NotifyID.Mobile_Shake, this.mobileShake, this);
-
-        this.FirstLogin();
+export class SdkLauncher {
+    private launchDesc: cc.Label = null;
+    private progress: cc.ProgressBar = null;
+    private _progressNum: number = 0;
+    public constructor(launchDesc?: cc.Label, progress?: cc.ProgressBar) {
+        this.launchDesc = launchDesc;
+        this.progress = progress;
+        this._progressNum = 10;
+        this.loadFinish = false;
+        this.setSdkInfo();
+        this.loadShareTemplates();
+        this.login();
+    }
+    public loadFinish: boolean = false;
+    public get progressNum(): number {
+        return this._progressNum > 100 ? 100 : this._progressNum;
+    }
+    public setSdkInfo() {
+        Notifier.send(ListenID.Login_Start);
     }
 
-    //先进行平台登陆
-    private async FirstLogin(){
-        try {
-            await XHSDK.FirstLogin();
-            this.XHLogin();
-        } catch(err) {
-            console.error("FirstLogin ", err);
-        }
+    login() {
+        this.loadOther();
+        this.loadData();
     }
 
-    /**
-     * 
-     * @param key 场景值是否屏蔽
-     */
-    private isSwitchOpen(key : SDKKey) : boolean {
-        if (key == SDKKey.pay) {
-            if (cc.sys.os == cc.sys.OS_IOS) {
-                key = SDKKey.iOSPay;
-            } else {
-                key = SDKKey.androidPay;
-            }
-        }
+    async loadData() {
+        await Promise.all([this.loadGameSwitchConfig(),, this.loadTime(), this.loadUserData(), this.loadScene()]);
+        if (this.progress) { this.progress.progress = 1; this.launchDesc.string = "100%" };
+        this.checkLogin().then(() => {
+            this.initData();
+            this.loadFinish = true;
+            setTimeout(() => {
+                Notifier.send(ListenID.Login_Finish);
+            }, 100)
 
-        return XHSDK.isSwitchOpen(key);        
+        }).catch(err => {
+            this.reLogin();
+        })
     }
 
-    /**
-     * 分享
-     * @param callBack 
-     */
-    private share(key?:string, value ?: object, callBack?:Function, args ?: {}){
-        XHSDK.WxShare(key, value, args).then(
-            function(){
-                if(callBack){
-                    callBack();
-                    console.log("分享成功回调")
+    async loadTime() {
+        return new Promise((resolve, reject) => {
+            NetAdapter.getServerTime().then(res => {
+                if (res && res.data) {
+                    Time.setServerTime(res.data.timestamp * 1000);
+                } else {
+                    let time = Date.now();
+                    Time.setServerTime(time);
                 }
+                // this.progress.progress += 0.1;
+                // this._progressNum = Math.floor(this.progress.progress * 100);
+                // this.launchDesc.string = `${this.progressNum}%`;
+                resolve();
+            }).catch(err => {
+                // this.progress.progress += 0.1;
+                // this._progressNum = Math.floor(this.progress.progress * 100);
+                // this.launchDesc.string = `${this.progressNum}%`;
+                let time = Date.now();
+                Time.setServerTime(time);
+                resolve();
+            })
+        })
+    }
+
+    /**加载被动分享模板 */
+    loadShareTemplates() {
+        HD_MODULE.PLATFORM.getOneShareInfoByType(ShareCode.regular, (shareInfo) => {
+            if (shareInfo) {
+                shareInfo.imageUrl = shareInfo.image_url;
+                HD_MODULE.PLATFORM.setShareAppMsg(shareInfo);
             }
-        );
+        }, () => {
+
+        })
     }
 
-    private _tiger : XHTiger;
-    private createTiger(id : string, btnOpen : cc.Button, btnClose ?: cc.Button, completeCallback: (skip: boolean) => void = null, isSplashAd = false) {
-        if (this._tiger != null) {
-            this.cleanTiger( );
-        }
-
-        this._tiger = XHTiger.Create(id, btnOpen, btnClose, completeCallback, isSplashAd);
-        this._tiger.setup();
+    /**加载游戏开关控制 */
+    async loadGameSwitchConfig() {
+        return new Promise((resolve, reject) => {
+            HD_MODULE.PLATFORM.getGameSwitchConfig().then(res => {
+                // this.progress.progress += 0.1;
+                // this._progressNum = Math.floor(this.progress.progress * 100);
+                // this.launchDesc.string = `${this.progressNum}%`;
+                GameVoManager.getInstance.updateSwitchVo(res.data.switch);
+                resolve();
+            }).catch(err => {
+                console.error("switch", err);
+                // this.progress.progress += 0.1;
+                // this._progressNum = Math.floor(this.progress.progress * 100);
+                // this.launchDesc.string = `${this.progressNum}%`;
+                resolve();
+            })
+        })
     }
 
-    private cleanTiger( ) {
-        if (this._tiger == null) {
-            return;
-        }
-        this._tiger.clean();        
-    }
-
-    private loadingLog(type : string) {
-        XHSDK.sendLoadingLog(type);      
-    }
-
-    private mobileShake(type : number) {
-        let shake = Notifier.call(CallID.Setting_GetShake);
-        if(!shake)  return;
-        if (type == 2) {
-            WeChatSDK.vibrateLong();
-        } else {
-            WeChatSDK.vibrateShort();
-        }
-    }
-
-    private onClickLogin() {
-        Notifier.send(NotifyID.App_Start);
-    }
-
-    private onEditingReturn(event) {
-        //cc.error("onEditingReturn:", event);
-        let edit : cc.EditBox = event;
-        Manager.storage.setString(StorageID.LocalId, edit.string);
-    }
-
-    private onClickServer(toggle : ToggleCell, isChecked : boolean) {
-        if (!isChecked) {
-            return;
-        }
-        if (this._curServer != null) {
-            this._curServer.isChecked = false;
-        }
-        let index = toggle.index;
-        Manager.storage.setNumber(StorageID.ServerIndex, index);
-        this._curServer = toggle;
-        //cc.error("onClickServer:", index);
-    }
-
-    //微信登录授权处理
-    private WXLogin(callBack:Function){
-        XHSDK.XhLogin((XhLoginRes) =>{
-            //在ccc上直接开始游戏
-            if(!XhLoginRes){
-                if (callBack != null) {
-                    callBack();                    
-                }
-                return;
-            }
-            let nick_name = XhLoginRes.nick_name;
-            console.log("[sdkLauncher]wxlogin", XhLoginRes);            
-            if(!nick_name){
-                this._nodeAuth.active = true;
-                this._nodeAuth.setSiblingIndex(99999);
-                WeChatSDK.login((err,WxloginnRes) => {
-                    this._nodeAuth.active = false;
-                    if(!err){
-                       cc.error("微信授权失败");
-                       return;
+    /**加载用户数据 */
+    async loadUserData() {
+        return new Promise((resolve, reject) => {
+            NetAdapter.getKVData().then(res => {
+                if (res.data) {
+                    try {
+                        let data = JSON.parse(res.data.custom_data.public);
+                        data = this.checkUserData(data);
+                        GameVoManager.getInstance.myUserVo.updatetUserVo(data);
+                        GameVoManager.getInstance.myUserVo.isGetData = true;
+                        Notifier.send(ListenID.Login_User);
+                    } catch (error) {
+                        console.log("reject------");
+                        console.error(error);
                     }
-                    let info = {encryptedData: WxloginnRes.encryptedData,iv: WxloginnRes.iv,signature: WxloginnRes.signature};
-                    console.log("微信授权成功")
-                    XHSDK.updateUserInfo(info,() => {
-                        console.log("[sdkLauncher]updateUserInfo", info)
-                        Notifier.send(NotifyID.Login_Again, ()=>{
-                            if (callBack != null) {
-                                callBack();                   
-                            }
-                        });
-                    });
-                });
-            }else {
-                if (callBack != null) {
-                    callBack();                    
                 }
-            }
+                resolve(res);
+                // this.progress.progress += 0.1;
+                // this._progressNum = Math.floor(this.progress.progress * 100);
+                // this.launchDesc.string = `${this.progressNum}%`;
+            }).catch(err => {
+                this.progress.progress += 0.1;
+                // this._progressNum = Math.floor(this.progress.progress * 100);
+                // this.launchDesc.string = `${this.progressNum}%`;
+                resolve(err);
+            })
         });
     }
 
-    //闪屏广告显示处理
-    private XHLogin(){
-        this._btnFirst.node.opacity = 255;
-        if (WeChatSDK.isWeChat()) {
-            //第一次不出现闪屏
-            let loginTimes : number = Manager.storage.getNumber(StorageID.LoginTimes, 0);
-            if (loginTimes > 0 && AppConfig.needSplash) {
-                this._nodeAd.active = true;
-                this.createTiger(AppConfig.TigerID.splash, this._btnFirst, this._btnSkip, (skip) => { 
-                    this.CreatMainScene(); 
-                }, true);                
+    async loadScene() {
+        return new Promise((resolve, reject) => {
+            cc.director.preloadScene(Const.GAME_SCENENAME, (curcomplete, totalcount) => {
+                // this.progress.progress += 0.1 * (1 / totalcount);
+                // this._progressNum = Math.floor(this.progress.progress * 100);
+                // this.launchDesc.string = `${this.progressNum}%`;
+            }, () => {
+                resolve();
+            });
+        })
+    }
+
+    public loadOther() {
+        
+    }
+
+    public checkLogin(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (!GameVoManager.getInstance.myUserVo.isGetData && HD_MODULE.PLATFORM.sdk) {
+                AlertManager.showAlert(AlertType.COMMON, {
+                    desc: '获取用户数据失败，点击确定重连', errorcb: () => {
+                        NetAdapter.getKVData().then(res => {
+                            if (res.data) {
+                                try {
+                                    let data = JSON.parse(res.data.custom_data.public);
+                                    data = this.checkUserData(data);
+                                    GameVoManager.getInstance.myUserVo.updatetUserVo(data);
+                                    GameVoManager.getInstance.myUserVo.isGetData = true;
+                                    Notifier.send(ListenID.Login_User);
+                                    resolve();
+                                } catch (error) {
+                                    console.error(error);
+                                    reject();
+                                }
+                            }
+                        }).catch(err => {
+                            reject()
+                        })
+                    }
+                });
             } else {
-                Time.delay(0.02, this.FadeoutLogo, null, this, 26);
+                resolve();
             }
-            Manager.storage.setNumber(StorageID.LoginTimes, loginTimes + 1);
-            //屏蔽XHTiger判断
-            cc.sys.localStorage.setItem("splash", "1");
-        } else {
-            this.CreatMainScene();
-        }      
+        })
     }
 
-    //没有广告闪屏后开始游戏
-    private FadeoutLogo(){
-        this._btnFirst.node.opacity -= 10;
-        if(this._btnFirst.node.opacity <= 0){
-            this.CreatMainScene();
-        }
+    public checkUserData(data: any) {
+
+        return data;
     }
 
-    //有广告先看广告后开始游戏
-    private CreatMainScene(){
-        this._btnFirst.node.active = false;
-        let debugMode = Manager.storage.getBool(StorageID.DebugMode);
-        if (debugMode || !WeChatSDK.isWeChat()) {
-            this._testRoot.active = true;
-        } else {
-            Notifier.send(NotifyID.App_Start);                
+    public reLogin() {
+        this.checkLogin().then(() => {
+            this.initData();
+            this.loadFinish = true;
+            Notifier.send(ListenID.Login_Finish);
+        }).catch(err => {
+            this.reLogin();
+        })
+    }
+
+    public initData() {
+        let date = new Date(Time.serverTimeMs);
+        let curday = date.getDate();
+        let userData = GameVoManager.getInstance.myUserVo;
+        if (curday != userData.day) {
+            userData.day = curday;
+            Notifier.send(ListenID.SecondDay);
         }
     }
 }

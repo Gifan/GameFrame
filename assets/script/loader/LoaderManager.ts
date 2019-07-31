@@ -5,7 +5,7 @@ declare interface SessionMap {
     [key: string]: Session;
 }
 
-type LoaderCallback = (name: string, asset: object) => void;
+type LoaderCallback = (name: string, asset: object, assetpath: string) => void;
 
 export class LoaderManager {
     /// <summary>
@@ -13,10 +13,10 @@ export class LoaderManager {
     /// key一般是资源路径
     /// 但是图集打包的sprite由于一个bundle有多个资源，所以需要资源路径+文件名拼接成key
     /// </summary>
-    private _sessions : SessionMap = {};
-    private _loadQueue : Session[] = [];
+    private _sessions: SessionMap = {};
+    private _loadQueue: Session[] = [];
 
-    public LoadAssetAsync(name:string, path:string, type: typeof cc.Asset, key:string, callback:LoaderCallback, target:any) : void {
+    public LoadAssetAsync(name: string, path: string, type: typeof cc.Asset, key: string, callback: LoaderCallback, target: any, arg: any): void {
         let session = this._sessions[key];
         if (session == null) {
             session = new Session();
@@ -37,11 +37,15 @@ export class LoaderManager {
                 session.targets = [];
             }
             session.targets.push(target);
+            if (session.args == null) {
+                session.args = [];
+            }
+            session.args.push(arg);
         }
         this._loadQueue.push(session);
     }
 
-    public CancelLoad(key:string, callback:LoaderCallback, target:any) : void {
+    public CancelLoad(key: string, callback: LoaderCallback, target: any): void {
         if (callback == null) {
             cc.error("CancelLoad callback null, key:" + key);
             return;
@@ -68,10 +72,10 @@ export class LoaderManager {
         }
         if (!result) {
             cc.warn("CancelLoad callback remove fail, key:" + key);
-        }       
+        }
     }
 
-    public UnLoadAsset(key:string) : void {
+    public UnLoadAsset(key: string): void {
         let session = this._sessions[key];
         if (session == null) {
             cc.warn("LoaderManager.UnLoad can't find:" + key);
@@ -84,7 +88,7 @@ export class LoaderManager {
         delete this._sessions[key];
     }
 
-    public Update(dt:number) : void {        
+    public Update(dt: number): void {
         for (let index = this._loadQueue.length - 1; index >= 0; index--) {
             const session = this._loadQueue[index];
             if (!session.loader.IsDone()) {
@@ -92,24 +96,27 @@ export class LoaderManager {
             }
             let callbacks = session.callbacks;
             let targets = session.targets;
+            let args = session.args;
             session.callbacks = null;
             session.targets = null;
+            session.args = null;
             if (callbacks != null) {
                 for (let i = 0; i < callbacks.length; i++) {
                     const callback = callbacks[i];
                     const target = targets[i];
-                    callback.call(target, session.name, session.loader.asset)
+                    const arg = args[i];
+                    callback.call(target, session.name, session.loader.asset, session.path, arg)
                 }
             }
             this._loadQueue.splice(index, 1);
-        }        
+        }
     }
 
-    public LoadSceneAsync(name:string, onLaunched:Function):void {      
+    public LoadSceneAsync(name: string, onLaunched: Function): void {
         cc.director.loadScene(name, onLaunched);
     }
 
-    public PreloadSceneAsync(name:string, onProgress:(completedCount: number, totalCount: number) => void, target:any):void {     
+    public PreloadSceneAsync(name: string, onProgress: (completedCount: number, totalCount: number) => void, target: any): void {
         cc.director.preloadScene(name, (completedCount: number, totalCount: number, item: any) => {
             if (onProgress != null) {
                 onProgress.call(target, completedCount, totalCount);
@@ -117,7 +124,7 @@ export class LoaderManager {
         });
     }
 
-    public SetProgressCallback(key:string, callback:(path : string, progress : number) => void, target : any) {
+    public SetProgressCallback(key: string, callback: (path: string, progress: number) => void, target: any) {
         let session = this._sessions[key];
         if (session == null) {
             cc.error("AddProgressCallback can't find:", key);

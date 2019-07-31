@@ -92,7 +92,7 @@ export class TConfig<T extends IConfig> {
     public filter(param : Param) : T[] {
         if (this._map == null) {
             cc.error(this._name + " TConfig.filter _map null");
-            return [];
+            return;
         }
 
         //cc.log("filter key:", JSON.stringify(param));
@@ -192,20 +192,5 @@ export class TConfig<T extends IConfig> {
             return;
         }
         return this._map;
-    }
-
-    private _count : number;
-    public get count() : number {
-        if (this._count) {
-            return this._count;
-        }
-
-        if (this._map == null) {
-            cc.error(this._name + " TConfig.count _map null");
-            return 0;
-        }
-
-        this._count = Object.keys(this._map).length;
-        return this._count;
     }
 }
