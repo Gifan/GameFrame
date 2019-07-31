@@ -1,8 +1,8 @@
-import { UIPanelController } from "../module/uipanel/UIPanelController";
+import { LoginController } from "../module/login/LoginController";
 
 //模块启动器
 export class ModuleLauncher {
     public constructor() {
-       new UIPanelController();
+        new LoginController();
     }
 }

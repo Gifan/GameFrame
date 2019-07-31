@@ -13,8 +13,9 @@ export enum NotifyID {
     SDK_Banner_Resize,    // 广告大小变更
     Time_Scale,
     Game_onHide,
-    Game_OnShareShow, //分享专用
     Game_OnShow,
+    OPEN_PANEL,
+    CLOSE_PANEL
 }
 
 

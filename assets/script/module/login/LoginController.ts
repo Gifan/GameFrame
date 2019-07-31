@@ -12,7 +12,6 @@ export class LoginController extends MVC.BaseController {
     protected changeListener(enable: boolean): void {
         Notifier.changeListener(enable, ListenID.Login_Start, this.onLoginStart, this);
         Notifier.changeListener(enable, ListenID.Login_Finish, this.onLoginFinish, this);
-        // Notifier.changeListener(enable, ListenID.Login_User, this.onLoginFinish, this);
     }
 
     private onLoginStart(): void {
