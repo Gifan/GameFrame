@@ -1,7 +1,11 @@
 import { AlertManager, AlertType } from "../alert/AlertManager";
 
 export class UserVo {
+    public isAuthorize:number = 0;                  //是否已授权
+    public nickName:string = "匿名";
+    public avatarUrl:string = "";
     public isGetData:boolean = false;
+    public channel_code:string = "";
     public day:number = 0;
     //----------不保存-----------//
     public updatetUserVo(res: any): void {

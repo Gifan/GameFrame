@@ -45,7 +45,7 @@ class _Time {
     private _gameTime: number = 0;
 
     constructor() {
-        Notifier.changeListener(true, ListenID.Life_On_Hide, this.onHideCallBack, this);
+        Notifier.changeListener(true, NotifyID.Game_onHide, this.onHideCallBack, this);
     }
 
     private _isUpdateServerTime: boolean = true;

@@ -1,5 +1,4 @@
 import { appConfig, EPlatform } from "../../config/AppConfig";
-import { EventManager } from "../../mgr/EventManager";
 import { HD_MODULE } from "../../hd_module";
 declare let qq;
 export const serverUrlConfig = [

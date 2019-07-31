@@ -1,4 +1,3 @@
-import { HDMiniPro } from "../../imp/sdk_hd_minipro_0.0.1";
 import { EventManager } from "../../../mgr/EventManager";
 import { HDDefaultUserInfo, appConfig, videoIdList } from "../../../config/AppConfig";
 import { HD_MODULE } from "../../../hd_module";
@@ -118,7 +117,13 @@ export default class WeChat {
         // }
         // this.showVideo(videoIdList[1][0], null, null, false);
         /** SDK初始化 */
-        HDMiniPro.setup(WeChat.onShowCallBack.bind(this), WeChat.onHideCallBack.bind(this));
+        wx.onShow((res) => {
+			WeChat.onShowCallBack(res);
+		});
+
+		wx.onHide((res) => {
+			WeChat.onHideCallBack(res);
+		});
 
         EventManager.on('open-share', this.share, this);
         // EventManager.on('login-req', (data) => this._silenceLogin(data.success, data.fail), this);
@@ -778,7 +783,7 @@ export default class WeChat {
 
     /**获取系统信息 */
     static systemInfo(): any {
-        return HDMiniPro.systemInfo;
+        return WeChat.getSysInfo();
     }
 
     static notifyOnShowEvent(onShowCallBack: Function) {

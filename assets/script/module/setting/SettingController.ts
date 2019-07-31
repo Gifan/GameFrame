@@ -4,7 +4,6 @@ import { CallID } from "../../CallID";
 import SettingModel from "./SettingModel";
 import { Manager } from "../../manager/Manager";
 import { Const } from "../../config/Const";
-
 import { Common_UIPath } from "../../common/Common_Define";
 import { MVC } from "../../frame/MVC";
 import { Notifier } from "../../frame/Notifier";

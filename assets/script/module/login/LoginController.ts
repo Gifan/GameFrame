@@ -23,7 +23,6 @@ export class LoginController extends MVC.BaseController {
     }
 
     loadResSuc() {
-        // HD_MODULE.PLATFORM.showVideoByIndex(1, false);
         cc.director.loadScene(Const.GAME_SCENENAME, () => {
         });
     }

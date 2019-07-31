@@ -203,7 +203,6 @@ export class SdkLauncher {
         let userData = GameVoManager.getInstance.myUserVo;
         if (curday != userData.day) {
             userData.day = curday;
-            Notifier.send(ListenID.SecondDay);
         }
     }
 }
