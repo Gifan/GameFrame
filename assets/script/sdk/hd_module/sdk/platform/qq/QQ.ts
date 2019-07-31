@@ -1,5 +1,4 @@
 import { HDMiniPro } from "../../imp/sdk_hd_minipro_0.0.1";
-import { EventManager } from "../../../mgr/EventManager";
 import { HDDefaultUserInfo, appConfig, videoIdList } from "../../../config/AppConfig";
 import { HD_MODULE } from "../../../hd_module";
 import Base64 = require('../../../utils/base64.js');
@@ -118,9 +117,6 @@ export default class QQ {
         // this.showVideo(videoIdList[1][0], null, null, false);
         /** SDK初始化 */
         HDMiniPro.setup(QQ.onShowCallBack.bind(this), QQ.onHideCallBack.bind(this));
-
-        EventManager.on('open-share', this.share, this);
-        // EventManager.on('login-req', (data) => this._silenceLogin(data.success, data.fail), this);
     }
 
     /** onShow */
@@ -179,7 +175,6 @@ export default class QQ {
 
         QQ.checkQueryEvent();
 
-        EventManager.emit('game-onshow', { res: res });
     }
 
     /** onHide */
@@ -188,7 +183,6 @@ export default class QQ {
         // console.log("onHideCallBack")
         QQ.hideTime = Date.now();
         QQ.updateNotityEvent('onhide');
-        EventManager.emit('game-onhide');
     }
 
     /** 登陆成功回调 */
@@ -202,8 +196,6 @@ export default class QQ {
 
         // this.showVideo(videoIdList[1][0], null, null, false);
 
-        /** 发射小游戏登录成功事件 */
-        EventManager.emit('game-login');
     }
 
     public static loginFailCallBack(res) {
@@ -673,7 +665,6 @@ export default class QQ {
             let onClose = (res: { isEnded: boolean }) => {
                 if ((res && res.isEnded) || res == undefined) {
                     // console.log('[hd_sdk_QQ]----->视频正常播放结束');
-                    EventManager.emit('video-success');
                     suc();
                 } else {
                     console.log('[hd_sdk_QQ]----->视频中途播放结束或视频错误');

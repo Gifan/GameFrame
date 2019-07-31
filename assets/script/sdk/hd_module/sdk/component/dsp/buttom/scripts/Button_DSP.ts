@@ -1,11 +1,12 @@
 import { EPlatform, appConfig } from "../../../../../config/AppConfig";
-import { EventManager } from "../../../../../mgr/EventManager";
 import { HD_MODULE } from "../../../../../hd_module";
 import UtilsSprite from "../../../../../utils/sprite ";
 import { AnimationUtils } from "../../../../../utils/AnimationUtils";
 import { EffectUtils } from "../../../../../utils/EffectUtils";
+import { Notifier } from "../../../../../../../frame/Notifier";
+import { ListenID } from "../../../../../../../ListenID";
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 let PosType = cc.Enum({
     home: 1,
@@ -32,49 +33,49 @@ export default class ButtonDSP extends cc.Component {
     /** 是否已获取数据 */
     static isGetData: boolean = false;
     /** 位置ID */
-    @property({type: PosType})
+    @property({ type: PosType })
     pos: number = PosType.home;
 
     /** 平台 */
-    @property({type: EPlatform})
+    @property({ type: EPlatform })
     platform: number = EPlatform.WeChat;
-    
+
     /** 第几张图 */
     index: number = -1;
     /** 当前计时器ID */
     timerId: number = 0;
 
-    onEnable(){
+    onEnable() {
         this.node.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
-        EventManager.on('dsp-getdata', () => this.changeSprite(), this);
+        Notifier.changeListener(true, ListenID.Dsp_Get, this.changeSprite, this);
     }
 
-    onDestroy(){
+    onDestroy() {
         clearInterval(this.timerId);
     }
 
-    onLoad(){
+    onLoad() {
         /** 有平台时才刷 */
-        if(HD_MODULE.getPlatform().getToken() && this.platform == appConfig.platform_id){
-            if(!ButtonDSP.isGetData){
+        if (HD_MODULE.getPlatform().getToken() && this.platform == appConfig.platform_id) {
+            if (!ButtonDSP.isGetData) {
                 DSPData.init();
                 ButtonDSP.isGetData = true;
-            }else{
+            } else {
                 this.changeSprite();
             }
-        }else{
+        } else {
             this.node.setContentSize(0, 0);
         }
     }
 
-    onDisable(){
+    onDisable() {
         this.node.off(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
-        EventManager.offTarget(this);
+        Notifier.changeListener(false, ListenID.Dsp_Get, this.changeSprite, this);
     }
 
-    onTouchEnd(){
+    onTouchEnd() {
         let info = this.getMiniProInfo();
-        if(!info) return;
+        if (!info) return;
         let toAppid = info.app_id;
         HD_MODULE.getPlatform().navigateToMiniProgram({
             appId: toAppid,
@@ -82,17 +83,17 @@ export default class ButtonDSP extends cc.Component {
             path: info.path || "",
             success: () => {
                 this.changeSprite();
-                HD_MODULE.getNet().postDSPOut({to_app_id: toAppid});
+                HD_MODULE.getNet().postDSPOut({ to_app_id: toAppid });
             },
             fail: () => this.changeSprite()
         });
     }
 
     /** 切换图片 */
-    changeSprite(num?: number){
+    changeSprite(num?: number) {
         let list = this.getMiniProList();
         let info = this.getMiniProInfo();
-        if(!info) return;
+        if (!info) return;
         this.index = (num || num == 0) ? num : (this.index + 1) % list.length;
         let duration = info.duration || 10;
         clearInterval(this.timerId);
@@ -102,12 +103,12 @@ export default class ButtonDSP extends cc.Component {
         this.onFlush();
     }
 
-    onFlush(type: string = 'all', info?: any){
-        switch(type){
+    onFlush(type: string = 'all', info?: any) {
+        switch (type) {
             case 'all': {
                 this.updateSpirte();
                 // this.updateEffect();
-               break;
+                break;
             }
         }
     }
@@ -115,19 +116,19 @@ export default class ButtonDSP extends cc.Component {
     /**
      * 刷新图片
      */
-    updateSpirte(){
+    updateSpirte() {
         let info = this.getMiniProInfo();
-        if(!info) return;
+        if (!info) return;
         let aniUrl = this.getAnimationUrl();
         if (!aniUrl) {
             // 图片
             let sp = this.node.getComponent(cc.Sprite);
-            if(!sp){
+            if (!sp) {
                 sp = this.node.addComponent(cc.Sprite);
             }
             sp.sizeMode = cc.Sprite.SizeMode.CUSTOM;
             UtilsSprite.setSprite(sp, info.icon);
-        }else {
+        } else {
             // 帧动画
             AnimationUtils.play(aniUrl, this.node, null, 0, 0);
         }
@@ -156,17 +157,17 @@ export default class ButtonDSP extends cc.Component {
         }
     };
 
-    getMiniProList(){
+    getMiniProList() {
         let list = DSPData.miniproList[PosString[this.pos]];
-        if(!list){
+        if (!list) {
             return {};
         }
         return list;
     }
 
-    getMiniProInfo(){
+    getMiniProInfo() {
         let list = this.getMiniProList();
-        if(this.index == -1){
+        if (this.index == -1) {
             this.index = Math.floor(Math.random() * list.length);
         }
         let info = list[this.index];
@@ -196,14 +197,14 @@ export default class ButtonDSP extends cc.Component {
 }
 
 
-export class DSPData{
+export class DSPData {
     /** DSP信息 */
     public static miniproList: {} = {};
 
-    public static init(){
-        HD_MODULE.getNet().getDSPInfo({version: appConfig.app_version}, (res) => {
+    public static init() {
+        HD_MODULE.getNet().getDSPInfo({ version: appConfig.app_version }, (res) => {
             DSPData.miniproList = res.data.apps;
-            EventManager.emit('dsp-getdata');
+            Notifier.send(ListenID.Dsp_Get);
         })
     }
 }
@@ -213,7 +214,7 @@ export class DSPData{
  */
 export enum DSPEffectType {
     /** 放大缩小 */
-    SCALE       = 0,
+    SCALE = 0,
     /** 摇头抖动 */
-    SHAKE_HEAD  = 0,
+    SHAKE_HEAD = 0,
 }

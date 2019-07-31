@@ -6,7 +6,6 @@ import { Notifier } from "./Notifier";
 import { NotifyID } from "./NotifyID";
 import NetAdapter from "../adpapter/NetAdapter";
 import { ListenID } from "../ListenID";
-import { EventManager } from "../sdk/hd_module/mgr/EventManager";
 
 class _Time {
     private _time: number = 0;
@@ -118,7 +117,7 @@ class _Time {
         if (this.isgetToken) {
             this.tokenExpire -= dt;
             if (this.tokenExpire < 300 && this.getTokenState != 1) {
-                EventManager.emit('updateToken');
+               Notifier.send(ListenID.Sdk_UpdateToken);
                 this.getTokenState = 1;
             }
         }

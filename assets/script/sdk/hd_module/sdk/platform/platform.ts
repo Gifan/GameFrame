@@ -2,11 +2,12 @@ import { appConfig, EPlatform, videoIdList, bannerIdList } from "../../config/Ap
 import Base64 = require('../../utils/base64.js');
 import WeChat from "./wechat/WeChat";
 import ZiJie from "./zijie/ZiJie";
-import { EventManager } from "../../mgr/EventManager";
 import Native_Android from "./android/Native_Android";
 import Native_IOS from "./ios/Native_IOS";
 import QQ from "./qq/QQ";
 import { Time } from "../../../../frame/Time";
+import { Notifier } from "../../../../frame/Notifier";
+import { ListenID } from "../../../../ListenID";
 
 export default class Platform {
     /** token */
@@ -49,13 +50,10 @@ export default class Platform {
             this._sdk.init();
             //console.log('[hd_platform]-----> SDK init, platform:', platformStr);
         } else {
-            EventManager.on('login-req', (data) => data.success(() => { }), this);
             // this._sdk = Native_IOS;
             // platformStr = "native_ios";
         }
-        EventManager.on('updateToken', this.updateToken, this);
-        /** 监听打开激励视频 */
-        EventManager.on('open-video', (data) => this.showVideo(this.getVideoId(data.index), data.success, data.fail), this);
+        Notifier.addListener(ListenID.Sdk_UpdateToken,this.updateToken, this);
     }
 
     public get sdk() {
@@ -69,8 +67,6 @@ export default class Platform {
             this1.updateToken();
         });
     }
-
-
 
     public silenceLogin(): Promise<any> {
         let this1 = this;

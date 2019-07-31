@@ -1,6 +1,5 @@
 import { HD_MODULE } from "../../../../../hd_module";
 import { appConfig, EPlatform } from "../../../../../config/AppConfig";
-import { EventManager } from "../../../../../mgr/EventManager";
 
 const {ccclass, property} = cc._decorator;
 
@@ -78,7 +77,6 @@ class BoxDSPData{
         HD_MODULE.getNet().getDSPInfo({version: appConfig.app_version}, (res) => {
             BoxDSPData.miniproList = res.data.apps;
             success();
-            // EventManager.emit('dsp-getdata');
         })
     }
 }

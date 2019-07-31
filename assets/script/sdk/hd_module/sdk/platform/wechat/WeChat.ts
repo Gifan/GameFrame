@@ -1,4 +1,3 @@
-import { EventManager } from "../../../mgr/EventManager";
 import { HDDefaultUserInfo, appConfig, videoIdList } from "../../../config/AppConfig";
 import { HD_MODULE } from "../../../hd_module";
 import Base64 = require('../../../utils/base64.js');
@@ -124,9 +123,6 @@ export default class WeChat {
 		wx.onHide((res) => {
 			WeChat.onHideCallBack(res);
 		});
-
-        EventManager.on('open-share', this.share, this);
-        // EventManager.on('login-req', (data) => this._silenceLogin(data.success, data.fail), this);
     }
 
     /** onShow */
@@ -184,8 +180,6 @@ export default class WeChat {
         WeChat.updateNotityEvent('onshow');
 
         WeChat.checkQueryEvent();
-
-        EventManager.emit('game-onshow', { res: res });
     }
 
     /** onHide */
@@ -194,7 +188,6 @@ export default class WeChat {
         //console.log("onHideCallBack")
         WeChat.hideTime = Date.now();
         WeChat.updateNotityEvent('onhide');
-        EventManager.emit('game-onhide');
     }
 
     /** 登陆成功回调 */
@@ -207,9 +200,6 @@ export default class WeChat {
         runFuncFormArray(this.afterLoginCallBackList, res);
 
         // this.showVideo(videoIdList[1][0], null, null, false);
-
-        /** 发射小游戏登录成功事件 */
-        EventManager.emit('game-login');
     }
 
     public static loginFailCallBack(res) {

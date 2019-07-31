@@ -1,15 +1,10 @@
 import { HDMiniPro, stringFormat } from "../../imp/sdk_hd_minipro_0.0.1";
-import { EventManager } from "../../../mgr/EventManager";
 import { HD_MODULE } from "../../../hd_module";
 import { appConfig, HDDefaultUserInfo } from "../../../config/AppConfig";
 import BaseProtocol from "../../../net/protocol/baseprotocol";
 import { Manager } from "../../../../../manager/Manager";
 import Base64 = require('../../../utils/base64.js');
 import { GameVoManager } from "../../../../../manager/GameVoManager";
-// import { HDMINI_SDK } from "../../HD_SDK";
-// import { HDDefaultUserInfo, appConfig } from "../../config/AppConfig";
-// import BaseProtocol from "../../protocol/baseprotocol";
-// import { EventManager } from "../../mgr/EventManager";
 
 let shareSuccess = 2.5; //默认切后台多少秒后视为成功分享
 const wx = window["tt"];
@@ -124,9 +119,6 @@ export default class ZiJie {
         tt.onHide((res) => {
             ZiJie.onHideCallBack(res);
         });
-        // this._silenceLogin();
-        EventManager.on('open-share', this.share, this);
-        EventManager.on('login-req', (data) => this._silenceLogin(data.success, data.fail), this);
     }
 
     /** onShow */
@@ -164,8 +156,6 @@ export default class ZiJie {
         ZiJie.updateNotityEvent('onshow');
 
         ZiJie.checkQueryEvent();
-
-        EventManager.emit('game-onshow', { res: res });
     }
 
     /** onHide */
@@ -173,16 +163,13 @@ export default class ZiJie {
         ZiJie.onHideRes = res;
         ZiJie.hideTime = Date.now();
         ZiJie.updateNotityEvent('onhide');
-        EventManager.emit('game-onhide');
     }
 
     /** 登陆成功回调 */
     public static loginCallBack(res) {
         // if (ZiJie.isLogin) return;
-
         runFuncFormArray(this.loginCallBackList, res);
         runFuncFormArray(this.afterLoginCallBackList, res);
-        EventManager.emit('game-login');
     }
 
     public static loginFailCallBack(res) {
