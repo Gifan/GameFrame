@@ -4,10 +4,7 @@ import { AlertManager, AlertType } from "../alert/AlertManager";
 import NetAdapter from "../adpapter/NetAdapter";
 import { ListenID } from "../ListenID";
 import { HD_MODULE } from "../sdk/hd_module/hd_module";
-import { Cfg } from "../config/Cfg";
 import { ShareCode, Common_UIPath } from "../common/Common_Define";
-import { Manager } from "../manager/Manager";
-import { Util } from "../utils/Util";
 import { Notifier } from "../frame/Notifier";
 import { Time } from "../frame/Time";
 

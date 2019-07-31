@@ -1,4 +1,4 @@
-import { EventManager } from "../../../mgr/EventManager";
+
 import { HDDefaultUserInfo, appConfig } from "../../../config/AppConfig";
 import { HD_MODULE } from "../../../hd_module";
 import JsBridgeIOS from "./jsb/JsBridgeIOS";
@@ -108,8 +108,6 @@ export default class Native_IOS {
 
         /** 注册事件监听 */
         // EventManager.on('open-share', this.share, this);
-        /** 注册事件监听 */
-        EventManager.on('login-req', (data) => this._silenceLogin(data.success, data.fail), this);
         this._silenceLogin(this.loginCallBack.bind(this));
         // JsBridgeIOS.agentSDKLogin();
         /** 0.2秒只允许震动一次 */
@@ -198,7 +196,6 @@ export default class Native_IOS {
         //console.log('[hd_sdk_nativeIOS]----->onhide')
         this.hideTime = Date.now();
         this.updateNotityEvent('onhide');
-        EventManager.emit('game-onhide');
     }
 
     /** 登陆成功回调 */
@@ -212,7 +209,6 @@ export default class Native_IOS {
             runFuncFormArray(this.loginCallBackList);
             runFuncFormArray(this.afterLoginCallBackList);
             /** 发射小游戏登录成功事件 */
-            EventManager.emit('game-login');
         }
     }
 
