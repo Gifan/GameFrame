@@ -449,8 +449,7 @@ export default class WeChat {
                                 width: info == null || !info ? 720 * widthRate : info.width * widthRate,
                                 height: info == null || !info ? screenSize.height * heightRate : info.height * widthRate,
                                 lineHeight: 40,
-                                backgroundColor: '#ffffffff',
-                                color: '#ffffffff',
+                                backgroundColor: '#00000000',
                                 textAlign: 'center',
                                 fontSize: 16,
                                 borderRadius: 10
