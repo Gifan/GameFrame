@@ -125,7 +125,7 @@ export class SdkLauncher {
                 // this._progressNum = Math.floor(this.progress.progress * 100);
                 // this.launchDesc.string = `${this.progressNum}%`;
             }).catch(err => {
-                this.progress.progress += 0.1;
+                // this.progress.progress += 0.1;
                 // this._progressNum = Math.floor(this.progress.progress * 100);
                 // this.launchDesc.string = `${this.progressNum}%`;
                 resolve(err);

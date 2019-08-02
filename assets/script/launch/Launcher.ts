@@ -54,6 +54,7 @@ export default class Launcher extends cc.Component {
 
     onLoad() {
         cc.game.addPersistRootNode(this.node);
+        
     }
 
     start() {

@@ -54,10 +54,10 @@ export const Environment = {
 
 /** APP配置 */
 export let appConfig = {
-	platform_id: EPlatform.ZiJie,			//平台
-	app_id: appidList[EPlatform.ZiJie], 	//APPID
+	platform_id: EPlatform.WeChat,			//平台
+	app_id: appidList[EPlatform.WeChat], 	//APPID
 	env: Environment.native,				//服务器环境
-	app_version: "1.0.7",					//app版本号
+	app_version: "1.0.0",					//app版本号
 	sdk_version: "0.0.1",					//sdk版本号
 };
 
