@@ -1,4 +1,3 @@
-import { HDMiniPro, stringFormat } from "../../imp/sdk_hd_minipro_0.0.1";
 import { HD_MODULE } from "../../../hd_module";
 import { appConfig, HDDefaultUserInfo } from "../../../config/AppConfig";
 import BaseProtocol from "../../../net/protocol/baseprotocol";
@@ -950,7 +949,7 @@ export default class ZiJie {
 
     /**获取系统信息 */
     static systemInfo(): any {
-        return HDMiniPro.systemInfo;
+        return ZiJie.getSysInfo();
     }
 
     static notifyOnShowEvent(onShowCallBack: Function) {

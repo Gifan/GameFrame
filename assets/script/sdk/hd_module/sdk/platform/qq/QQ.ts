@@ -1,4 +1,3 @@
-import { HDMiniPro } from "../../imp/sdk_hd_minipro_0.0.1";
 import { HDDefaultUserInfo, appConfig, videoIdList } from "../../../config/AppConfig";
 import { HD_MODULE } from "../../../hd_module";
 import Base64 = require('../../../utils/base64.js');
@@ -116,7 +115,13 @@ export default class QQ {
         // }
         // this.showVideo(videoIdList[1][0], null, null, false);
         /** SDK初始化 */
-        HDMiniPro.setup(QQ.onShowCallBack.bind(this), QQ.onHideCallBack.bind(this));
+        qq.onShow((res) => {
+			QQ.onShowCallBack(res);
+		});
+
+		qq.onHide((res) => {
+			QQ.onHideCallBack(res);
+		});
     }
 
     /** onShow */
@@ -691,7 +696,7 @@ export default class QQ {
 
     /**获取系统信息 */
     static systemInfo(): any {
-        return HDMiniPro.systemInfo;
+        return QQ.getSysInfo();
     }
 
     static notifyOnShowEvent(onShowCallBack: Function) {
