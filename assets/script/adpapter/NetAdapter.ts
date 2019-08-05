@@ -1,11 +1,10 @@
 
 import { GameVoManager } from "../manager/GameVoManager";
 import { ListenID } from "../ListenID";
-import BaseProtocol, { serverUrlConfig } from "../../sdk/hd_module/net/protocol/baseprotocol";
-import { appConfig } from "../../sdk/hd_module/config/AppConfig";
-import BaseNet from "../frame/BaseNet";
 import { Notifier } from "../frame/Notifier";
-import Net, { PutKVData, GetRankData, PostRankData, PostMiniGameLogin, GetDSPInfo } from "../../sdk/hd_module/net/net";
+
+import BaseProtocol from "../sdk/hd_module/net/protocol/baseprotocol";
+import Net from "../sdk/hd_module/net/net";
 
 export class ErrCode {
     public static code = {
@@ -46,7 +45,7 @@ export default class NetAdapter extends Net {
     /** 
      * 上报  KVDATA 
      */
-    public static putKVData(params: PutKVData): Promise<any> {
+    public static putKVData(params: any): Promise<any> {
         /** 保存本地数据 */
         let data = params.custom_data;
         /** 上报数据 */
@@ -76,7 +75,7 @@ export default class NetAdapter extends Net {
      * 获取  排行榜 
      * @param params type:自定义的排行榜类型, cycle:清榜周期  'week'为一周，'forever'为永久，page：请求页数，page_size:每页的数据个数
      */
-    public static getRankData(params: GetRankData): Promise<any> {
+    public static getRankData(params: any): Promise<any> {
         return _instance._getRankData(params);
     }
 
@@ -84,21 +83,21 @@ export default class NetAdapter extends Net {
      * 上报  排行榜 
      * @param params type:自定义的排行榜类型, cycle:清榜周期，'week'为一周，'forever'为永久，score：分数，customData:自定义数据，例如头像
      */
-    public static postRankData(params: PostRankData): Promise<any> {
+    public static postRankData(params: any): Promise<any> {
         return _instance._postRankData(params);
     }
 
     /**
      * 上报  登录小游戏服务器(微信静默登录时自动登录)
      */
-    public static postMiniGameLogin(params: PostMiniGameLogin): Promise<any> {
+    public static postMiniGameLogin(params: any): Promise<any> {
         return _instance._postMiniGameLogin(params);
     }
 
     /**
      * 获取  交叉推广数据
      */
-    public static getDSPInfo(param: GetDSPInfo): Promise<any> {
+    public static getDSPInfo(param: any): Promise<any> {
         return _instance._getDSPInfo(param);
     }
 
@@ -121,7 +120,7 @@ export default class NetAdapter extends Net {
     /** 
      * 上报  KVDATA 
      */
-    _putKVData(params: PutKVData): Promise<any> {
+    _putKVData(params: any): Promise<any> {
         return BaseProtocol.requestByConfig('kvDataPut', params);
     }
 
@@ -129,7 +128,7 @@ export default class NetAdapter extends Net {
      * 获取  排行榜 
      * @param params type:自定义的排行榜类型, cycle:清榜周期  'week'为一周，'forever'为永久，page：请求页数，page_size:每页的数据个数
      */
-    _getRankData(params: GetRankData): Promise<any> {
+    _getRankData(params: any): Promise<any> {
         return BaseProtocol.requestByConfig('rankGet', params);
     }
 
@@ -137,21 +136,21 @@ export default class NetAdapter extends Net {
      * 上报  排行榜 
      * @param params type:自定义的排行榜类型, cycle:清榜周期，'week'为一周，'forever'为永久，score：分数，customData:自定义数据，例如头像
      */
-    _postRankData(params: PostRankData): Promise<any> {
+    _postRankData(params: any): Promise<any> {
         return BaseProtocol.requestByConfig('rankPost', params);
     }
 
     /**
      * 上报  登录小游戏服务器(微信静默登录时自动登录)
      */
-    _postMiniGameLogin(params: PostMiniGameLogin): Promise<any> {
+    _postMiniGameLogin(params: any): Promise<any> {
         return BaseProtocol.requestByConfig('login', params, null, false);
     }
 
     /**
      * 获取  交叉推广数据
      */
-    _getDSPInfo(param: GetDSPInfo): Promise<any> {
+    _getDSPInfo(param: any): Promise<any> {
         return BaseProtocol.requestByConfig('dspGet', param);
     }
 
