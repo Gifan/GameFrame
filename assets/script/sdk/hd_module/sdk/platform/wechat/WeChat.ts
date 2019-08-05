@@ -117,12 +117,12 @@ export default class WeChat {
         // this.showVideo(videoIdList[1][0], null, null, false);
         /** SDK初始化 */
         wx.onShow((res) => {
-			WeChat.onShowCallBack(res);
-		});
+            WeChat.onShowCallBack(res);
+        });
 
-		wx.onHide((res) => {
-			WeChat.onHideCallBack(res);
-		});
+        wx.onHide((res) => {
+            WeChat.onHideCallBack(res);
+        });
     }
 
     /** onShow */
@@ -694,6 +694,7 @@ export default class WeChat {
                     this.videoAd.show().catch(err => {
                         console.error("======show error======", err);
                         this.videoAd && this.videoAd.offClose(onClose);
+                        WeChat.isVideo = false;
                         fail && fail(err);
                     });
                     cc.audioEngine.pauseAll();
@@ -751,8 +752,10 @@ export default class WeChat {
             }
             let error = (err) => {
                 //console.log("======视频onError", err);
-                this.videoAd.offClose(onClose);
-                this.videoAd.onError(error);
+                if (this.videoAd && this.videoAd.offClose) {
+                    this.videoAd.offClose(onClose);
+                    this.videoAd.offError(error);
+                }
                 if (err && err.errCode && (err.errCode == 1004 || err.errCode == 1005 || err.errCode == 1006 || err.errCode == 1007 || err.errCode == 1008)) {
                     this.isHaveVideo = false;
                     this.videoAd = null;

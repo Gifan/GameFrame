@@ -702,6 +702,7 @@ export default class ZiJie {
                         ZiJie.videoAd.show().catch(err => {
                             // this.videoAd.offClose(onClose);
                             console.error("catch", err);
+                            fail && fail({ errCode: 0 });
                             ZiJie.isVideo = false;
                         });
                         cc.audioEngine.pauseAll();
