@@ -1,14 +1,11 @@
 import { HD_MODULE } from "./sdk/hd_module/hd_module";
 import { GameVoManager } from "./manager/GameVoManager";
 import NetAdapter from "./adpapter/NetAdapter";
-import { PutKVData } from "./sdk/hd_module/net/net";
-import { ListenID } from "./ListenID";
 import { Manager } from "./manager/Manager";
 import { Time } from "./frame/Time";
 import { Notifier } from "./frame/Notifier";
 import { NotifyID } from "./frame/NotifyID";
 HD_MODULE.init();
-NetAdapter.Init();
 let ishided: boolean = false;
 if (window["wx"] && wx.getUpdateManager) {
     const updateManager = wx.getUpdateManager();
@@ -75,7 +72,7 @@ HD_MODULE.PLATFORM.notifyOnShowEvent((res) => {
         Notifier.send(NotifyID.App_Pause, false);
 });
 HD_MODULE.PLATFORM.notifyOnHideEvent((err) => {
-    let putKVData: PutKVData = { type: 1, custom_data: GameVoManager.getInstance.myUserVo.serialize() }
+    let putKVData = { type: 1, custom_data: GameVoManager.getInstance.myUserVo.serialize() }
     NetAdapter.putKVData(putKVData);
     Notifier.send(NotifyID.Game_onHide);
     ishided = true;
