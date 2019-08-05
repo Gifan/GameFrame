@@ -694,7 +694,6 @@ export default class WeChat {
                     this.videoAd.show().catch(err => {
                         console.error("======show error======", err);
                         this.videoAd && this.videoAd.offClose(onClose);
-                        WeChat.isVideo = false;
                         fail && fail(err);
                     });
                     cc.audioEngine.pauseAll();
@@ -748,11 +747,12 @@ export default class WeChat {
                     // console.log('[hd_sdk_Wechat]----->视频中途播放结束或视频错误');
                     fai(null);
                 }
-                this.videoAd.offClose(onClose);
+                if (this.videoAd)
+                    this.videoAd.offClose(onClose);
             }
             let error = (err) => {
                 //console.log("======视频onError", err);
-                if (this.videoAd && this.videoAd.offClose) {
+                if (this.videoAd) {
                     this.videoAd.offClose(onClose);
                     this.videoAd.offError(error);
                 }

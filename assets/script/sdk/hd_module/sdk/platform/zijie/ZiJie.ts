@@ -4,6 +4,10 @@ import BaseProtocol from "../../../net/protocol/baseprotocol";
 import { Manager } from "../../../../../manager/Manager";
 import Base64 = require('../../../utils/base64.js');
 import { GameVoManager } from "../../../../../manager/GameVoManager";
+// import { HDMINI_SDK } from "../../HD_SDK";
+// import { HDDefaultUserInfo, appConfig } from "../../config/AppConfig";
+// import BaseProtocol from "../../protocol/baseprotocol";
+// import { EventManager } from "../../mgr/EventManager";
 
 let shareSuccess = 2.5; //默认切后台多少秒后视为成功分享
 const wx = window["tt"];
@@ -702,7 +706,7 @@ export default class ZiJie {
                         ZiJie.videoAd.show().catch(err => {
                             // this.videoAd.offClose(onClose);
                             console.error("catch", err);
-                            fail && fail({ errCode: 0 });
+                            fail && fail({ errCode: 0 });                            ZiJie.isVideo = false;
                             ZiJie.isVideo = false;
                         });
                         cc.audioEngine.pauseAll();
@@ -758,14 +762,17 @@ export default class ZiJie {
                         ZiJie.videoAd.offClose(close);
                 }
                 let error = err => {
-                    // console.error('err=', err, JSON.stringify(err));
-                    if (this.videoAd && this.videoAd.offClose)
+                    console.error('err=', err, JSON.stringify(err));
+                    if (this.videoAd && this.videoAd.offClose) {
                         ZiJie.videoAd.offClose(close);
-                    ZiJie.videoAd.offError(error);
+                        ZiJie.videoAd.offError(error);
+                    }
+                    ZiJie.isVideo = false;
                     if (err && err.errCode && (err.errCode == 1004 || err.errCode == 1005 || err.errCode == 1006 || err.errCode == 1007 || err.errCode == 1008)) {
                         ZiJie.isHaveVideo = false;
                         ZiJie.videoAd = null;
                     }
+                    
                     fai(err);
                 }
                 ZiJie.videoAd.onClose(close);
