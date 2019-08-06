@@ -758,6 +758,7 @@ export default class WeChat {
                 }
                 if (err && err.errCode && (err.errCode == 1004 || err.errCode == 1005 || err.errCode == 1006 || err.errCode == 1007 || err.errCode == 1008)) {
                     this.isHaveVideo = false;
+                    this.videoAd && this.videoAd.destroy && this.videoAd.destroy();
                     this.videoAd = null;
                 }
                 console.log(this.isHaveVideo, this.videoAd);
