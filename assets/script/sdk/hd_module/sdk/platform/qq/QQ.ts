@@ -216,7 +216,7 @@ export default class QQ {
         /** 标题 */
         let title = data.title || '';
         /** 分享图 */
-        let imageUrl = data.imageUrl || "https://cdn-hdgames.9377.com/gameres/t3/p1/release/wechat/1.0.0/shareTemplates/res/share.jpg";//cc.url.raw('Texture/start/logo' + "?a=a.jpg");
+        let imageUrl = data.imageUrl || "https://cdn.heidong.fun/gameres/t3/p1/release/wechat/1.0.0/shareTemplates/res/share.jpg";//cc.url.raw('Texture/start/logo' + "?a=a.jpg");
         /** 分享出去的数据 */
         let query = data.query || '';
         /** 附加信息 */
@@ -434,7 +434,7 @@ export default class QQ {
             var btn = qq.createUserInfoButton({
                 type: "image",
                 // text: '获取',
-                image: type == 1 ? "https://cdn-hdgames.9377.com/gameres/t3/p1/release/wechat/loginBtn.png" : "https://cdn-hdgames.9377.com/gameres/t3/p1/release/wechat/loginBtn_2.png",
+                image: type == 1 ? "https://cdn.heidong.fun/gameres/t3/p1/release/wechat/loginBtn.png" : "https://cdn.heidong.fun/gameres/t3/p1/release/wechat/loginBtn_2.png",
                 style: {
                     left: type == 1 ? (wxSysInfo.screenWidth / 2 - 720 * widthRate / 2) : 77 * widthRate - 100 * widthRate / 2,
                     top: type == 1 ? (wxSysInfo.screenHeight / 2 - 1280 * heightRate / 2) : wxSysInfo.screenHeight / 2 - 100,

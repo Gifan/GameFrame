@@ -215,7 +215,7 @@ export default class WeChat {
         /** 标题 */
         let title = data.title || '';
         /** 分享图 */
-        let imageUrl = data.tempImageUrl || data.imageUrl || "https://cdn-hdgames.9377.com/gameres/t3/p1/release/wechat/1.0.0/shareTemplates/res/share.jpg";//cc.url.raw('Texture/start/logo' + "?a=a.jpg");
+        let imageUrl = data.tempImageUrl || data.imageUrl || "https://cdn.heidong.fun/gameres/t3/p1/release/wechat/1.0.0/shareTemplates/res/share.jpg";//cc.url.raw('Texture/start/logo' + "?a=a.jpg");
         /** 分享出去的数据 */
         let query = data.query || '';
         /** 附加信息 */
@@ -442,7 +442,7 @@ export default class WeChat {
                         var btn = wx.createUserInfoButton({
                             type: "image",
                             // text: '获取',
-                            image: info == null || !info ? "https://cdn-hdgames.9377.com/gameres/t3/p1/release/wechat/loginBtn.png" : "https://cdn-hdgames.9377.com/gameres/t3/p1/release/wechat/loginBtn_2.png",
+                            image: info == null || !info ? "https://cdn.heidong.fun/gameres/t3/p1/release/wechat/loginBtn.png" : "https://cdn.heidong.fun/gameres/t3/p1/release/wechat/loginBtn_2.png",
                             style: {
                                 left: info == null || !info ? (wxSysInfo.screenWidth / 2 - 720 * widthRate / 2) : (info.worldPos.x - info.width / 2) * widthRate,
                                 top: info == null || !info ? (wxSysInfo.screenHeight / 2 - screenSize.height * heightRate / 2) : wxSysInfo.screenHeight - (info.worldPos.y + info.height / 2 + (screenSize.height - 1280) / 2) * heightRate,

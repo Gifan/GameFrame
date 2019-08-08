@@ -186,7 +186,7 @@ export default class ZiJie {
         /** 标题 */
         let title = data.title || '';
         /** 分享图 */
-        let imageUrl = data.imageUrl || "https://cdn-hdgames.9377.com/gameres/t3/p1/release/wechat/1.0.0/shareTemplates/res/share.jpg";//cc.url.raw('Texture/start/logo' + "?a=a.jpg");
+        let imageUrl = data.imageUrl || "https://cdn.heidong.fun/gameres/t3/p1/release/wechat/1.0.0/shareTemplates/res/share.jpg";//cc.url.raw('Texture/start/logo' + "?a=a.jpg");
         /** 分享出去的数据 */
         let query = data.query || '';
         /** 附加信息 */

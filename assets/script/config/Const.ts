@@ -1,4 +1,5 @@
-import { appConfig } from "../../sdk/hd_module/config/AppConfig";
+import { appConfig } from "../sdk/hd_module/config/AppConfig";
+
 export namespace Const {
     export const APP_ID = "wxc93ee93882288748";
 
@@ -16,7 +17,7 @@ export namespace Const {
     export const STORAGE_NEWUSER: string = "newuser";//新用户标记
     export const STORAGE_LOADMENU: string = "loadmenu";//加载一次资源
 
-    export const JsonRemoteUrl: string = `https://cdn-hdgames.9377.com/gameres/t3/p1/release/zijie/${appConfig.app_version}/config/`;
+    export const JsonRemoteUrl: string = `https://cdn.heidong.fun/gameres/t3/p1/release/zijie/${appConfig.app_version}/config/`;
 
     /**组名 */
     export const GroupDefault = "Default";
