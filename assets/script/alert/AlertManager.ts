@@ -12,18 +12,36 @@ export enum AlertType {
 
 let _alertInstance: AlertManager;
 export class AlertManager {
-    public static showNormalTips(text: string, uilayer: MVC.eUILayer = MVC.eUILayer.Tips, time: number = 1, ydis: number = 70, posy: number = 0): void {
-        Util.loadPrefab("common/alert/tip").then((node) => {
+
+    public static tipPool: cc.NodePool = new cc.NodePool();
+    public static showNormalTips(text: string, parent: cc.Node = null, time: number = 1, ydis: number = 50, pos: cc.Vec2 = cc.Vec2.ZERO): void {
+        let node1 = this.tipPool.get();
+        let call = (node) => {
             node.getComponent(NormalTips).setText(text);
-            node.y = posy;
-            var action1 = cc.moveBy(time, cc.v2(0, ydis));
-            var action2 = cc.fadeOut(1)
+            node.position = pos;
+            node.opacity = 20;
+            let action1 = cc.moveBy(time, cc.v2(0, ydis));
+            let action2 = cc.fadeOut(1)
+            let action3 = cc.fadeIn(0.5);
+            let action4 = cc.spawn(action1, action3);
+            let action5 = cc.spawn(action2, action1);
             node.group = "UI";
-            node.setParent(UIManager.layerRoots(uilayer));
-            node.runAction(cc.sequence(action1, action2, cc.callFunc(() => {
-                node.destroy();
+            if (parent && cc.isValid(parent)) {
+                node.parent = parent;
+            } else {
+                node.setParent(UIManager.layerRoots(MVC.eUILayer.Tips));
+            }
+            node.runAction(cc.sequence(action4, cc.delayTime(0.5), action5, cc.callFunc(() => {
+                this.tipPool.put(node);
             })));
-        })
+        }
+        if (!node1) {
+            Util.loadPrefab("ui/common/alert/tip").then((node2) => {
+                call(node2);
+            })
+        } else {
+            call(node1);
+        }
     }
 
     /**
@@ -37,9 +55,9 @@ export class AlertManager {
      */
     public static showAlert(alertType: AlertType, args: any) {
         if (alertType == AlertType.COMMON) {
-            UIManager.Open("common/alert/CommonAlert", MVC.eTransition.Default, MVC.eUILayer.Loading, args);
+            UIManager.Open("ui/common/alert/CommonAlert", MVC.eTransition.Default, MVC.eUILayer.Loading, args);
         } else if (alertType == AlertType.NET_ERROR) {
-            UIManager.Open("common/alert/NetErrorAlert", MVC.eTransition.Default, MVC.eUILayer.Loading, args);
+            UIManager.Open("ui/common/alert/NetErrorAlert", MVC.eTransition.Default, MVC.eUILayer.Loading, args);
         }
     }
 }
