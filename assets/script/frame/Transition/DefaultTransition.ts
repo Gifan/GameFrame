@@ -1,11 +1,11 @@
-import { MVC } from "../MVC"
+import { MVCS } from "../MVCS"
     
 type Node = cc.Node
 
 /// <summary>
 /// 默认 UI切换过渡
 /// </summary>
-export class DefaultTransition implements MVC.ITransition{
+export class DefaultTransition implements MVCS.ITransition{
     private _node : Node;
     private isClean:boolean = false;
     public init( go : Node, isClean:boolean) : void {

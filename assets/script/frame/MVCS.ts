@@ -2,7 +2,8 @@ import { DefaultTransition } from "./Transition/DefaultTransition";
 import { ScaleTransition } from "./Transition/ScaleTransition";
 import { MoveTransition } from "./Transition/MoveTransition";
 
-export namespace MVC {
+export namespace MVCS {
+
     /**
      * @description 基础数据模型类
      * @author 吴建奋
@@ -14,6 +15,69 @@ export namespace MVC {
         public abstract reset(): void;
     }
 
+    abstract class BaseNet {
+        public constructor() {
+            this.register();
+        }
+        protected abstract register(): void;
+
+        public abstract reset(): void;
+
+        // protected show
+        protected httpRequest(method, url, body?: Object, authon?: string, rspType: XMLHttpRequestResponseType = 'json'): Promise<any> {
+            return new Promise((resolve, reject) => {
+                let xmlHttp = cc.loader.getXMLHttpRequest();
+                xmlHttp.timeout = 5000;
+                if (method == 'GET' && body) {
+                    let str = "?";
+                    for (let k in body) {
+                        if (str != "?") {
+                            str += "&";
+                        }
+                        str += k + "=" + body[k];
+                    }
+                    url = url + str;
+                }
+                xmlHttp.open(method, url, true);
+                xmlHttp.onreadystatechange = function () {
+                    if (xmlHttp.readyState == 4) {
+                        if (xmlHttp.status == 200) {
+                            if (rspType == 'json') {
+                                resolve(JSON.parse(xmlHttp.responseText))
+                            } else {
+                                resolve(xmlHttp.response)
+                            }
+                        } else {
+                            reject({ code: -1, msg: Error(`xmlHttp status = ${xmlHttp.status}`), data: {} })
+                        }
+                    } else {
+                        reject({ code: -100, msg: "" });
+                    }
+                }
+                // xmlHttp.onerror = function () {
+                //     reject({ code: -1, msg: Error('xmlhttp something error'), data: {} });
+                // }
+                xmlHttp.ontimeout = () => {
+                    reject({ code: -200, msg: Error('timeout'), data: {} });
+                }
+
+                // set request header
+                switch (rspType) {
+                    case 'json':
+                        xmlHttp.setRequestHeader('content-type', 'application/json')
+                        xmlHttp.setRequestHeader('Authorization', authon)
+                        break
+                }
+                // set reponse type ，如果是二进制，则最好是arraybuffer或者blob
+                if (rspType == 'blob' || rspType == 'arraybuffer') {
+                    xmlHttp.responseType = rspType
+                }
+
+                xmlHttp.send(body ? JSON.stringify(body) : '')
+            });
+        }
+    }
+
     /**
      * @description 基础控制器类
      * @author 吴建奋
@@ -21,16 +85,20 @@ export namespace MVC {
      * @abstract
      * @class BaseController
      */
-    export class BaseController {
+    export class BaseController extends BaseNet {
         private _name: string = "";
         public constructor(classname: string) {
+            super();
             this._name = classname;
             ControllerContainer.add(this);
         }
-
         //做为容器唯一标示，用类名即可
         public get _classname(): string {
             return this._name;
+        }
+
+        protected register(): void {
+            // throw new Error("Method not implemented.");
         }
 
         public reset(): void {
@@ -42,30 +110,32 @@ export namespace MVC {
         }
     }
 
+    interface controlMap {
+        [key: string]: BaseController
+    }
     export class ControllerContainer {
-        private static s_container: Array<BaseController> = [];
+        private static s_container: controlMap = {};
         public static add<T extends BaseController>(instance: BaseController): void {
             const name = instance._classname;
             if (ControllerContainer.getInstance(name) != null) {
                 cc.error("LogicContainer.Add repeat:" + name);
                 return;
             }
-            ControllerContainer.s_container.push(instance);
+            ControllerContainer.s_container[name] = instance;
         }
 
         public static getInstance<T extends BaseController>(name: string): T {
-            for (const item of ControllerContainer.s_container) {
-                if (item._classname == name) {
-                    return item as T;
-                }
+            const item = ControllerContainer.s_container[name];
+            if (item) {
+                return item as T;
             }
 
             return null;
         }
 
         public static reset(): void {
-            for (let i = 0; i < ControllerContainer.s_container.length; i++) {
-                ControllerContainer.s_container[i].reset();
+            for (const key in ControllerContainer.s_container) {
+                ControllerContainer.s_container[key].reset();
             }
         }
     }

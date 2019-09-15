@@ -9,13 +9,13 @@ import { AlertManager } from "../../alert/AlertManager";
 import { Util } from "../../utils/Util";
 import { Notifier } from "../../frame/Notifier";
 import { NotifyID } from "../../frame/NotifyID";
-import { MVC } from "../../frame/MVC";
+import { MVCS } from "../../frame/MVCS";
 import { UIManager } from "../../frame/UIManager";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class SettingView extends MVC.BaseView {
+export default class SettingView extends MVCS.BaseView {
 
     @property(cc.Toggle)
     musicToggle: cc.Toggle = null;
@@ -102,7 +102,7 @@ export default class SettingView extends MVC.BaseView {
 
     onBtnNoticeClick() {
         Manager.audio.playAudio(501);
-        UIManager.Open(Common_UIPath.NoticeUI, MVC.eTransition.Default, MVC.eUILayer.Tips);
+        UIManager.Open(Common_UIPath.NoticeUI, MVCS.eTransition.Default, MVCS.eUILayer.Tips);
     }
 
     /** 复制到剪贴板(原生平台可用) */

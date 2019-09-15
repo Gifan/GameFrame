@@ -1,7 +1,7 @@
 import { Const } from "../../config/Const";
-import { MVC } from "../../frame/MVC";
+import { MVCS } from "../../frame/MVCS";
 
-export default class SettingModel extends MVC.BaseModel {
+export default class SettingModel extends MVCS.BaseModel {
 
     private static _instance: SettingModel = null;
 

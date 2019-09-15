@@ -5,14 +5,14 @@ import SettingModel from "./SettingModel";
 import { Manager } from "../../manager/Manager";
 import { Const } from "../../config/Const";
 import { Common_UIPath } from "../../common/Common_Define";
-import { MVC } from "../../frame/MVC";
+import { MVCS } from "../../frame/MVCS";
 import { Notifier } from "../../frame/Notifier";
 import { UIManager } from "../../frame/UIManager";
 
 /*
  * 设置控制器
  */
-export class SettingController extends MVC.BaseController {
+export class SettingController extends MVCS.BaseController {
     public constructor() {
         super("SettingController");
         this.changeListener(true);
@@ -93,6 +93,6 @@ export class SettingController extends MVC.BaseController {
     }
 
     public openSettingView() {
-        UIManager.Open(Common_UIPath.SettingUI,MVC.eTransition.Default,MVC.eUILayer.Popup);
+        UIManager.Open(Common_UIPath.SettingUI,MVCS.eTransition.Default,MVCS.eUILayer.Popup);
     }
 }

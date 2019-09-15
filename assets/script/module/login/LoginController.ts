@@ -1,9 +1,9 @@
 import { ListenID } from "../../ListenID";
 import { Const } from "../../config/Const";
-import { MVC } from "../../frame/MVC";
+import { MVCS } from "../../frame/MVCS";
 import { Notifier } from "../../frame/Notifier";
 
-export class LoginController extends MVC.BaseController {
+export class LoginController extends MVCS.BaseController {
     public constructor() {
         super("LoginController");
         this.changeListener(true);

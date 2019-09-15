@@ -1,6 +1,6 @@
-import { MVCS } from "../../../frame/mvcs/MVCS";
-import { Notifier } from "../../../frame/mvcs/Notifier";
-import { NotifyID } from "../../../frame/mvcs/NotifyID";
+import { MVCSS } from "../../../frame/MVCSs/MVCSS";
+import { Notifier } from "../../../frame/MVCSs/Notifier";
+import { NotifyID } from "../../../frame/MVCSs/NotifyID";
 import { Time } from "../../../frame/Time";
 import { ListenID } from "../../ListenID";
 import { CallID } from "../../CallID";
@@ -8,7 +8,7 @@ import { CallID } from "../../CallID";
 /*
  * desc
  */
-export class @ModuleNameLogic extends MVCS.AbsLogic {
+export class @ModuleNameLogic extends MVCSS.AbsLogic {
     public constructor() {
         super("@ModuleName");
 

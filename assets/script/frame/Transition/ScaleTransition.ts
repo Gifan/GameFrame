@@ -1,11 +1,11 @@
-import { MVC } from "../MVC"
+import { MVCS } from "../MVCS"
 
 type Node = cc.Node
 
 /// <summary>
 /// 缩放 UI切换过渡
 /// </summary>
-export class ScaleTransition implements MVC.ITransition {
+export class ScaleTransition implements MVCS.ITransition {
     private _node: Node;
     private _fadeInAct: cc.Action;
     private _fadeOutAct: cc.Action;

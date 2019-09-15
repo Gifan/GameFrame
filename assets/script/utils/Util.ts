@@ -4,7 +4,7 @@ import { Const } from "../config/Const";
 import { Manager } from "../manager/Manager";
 import { AudioType } from "../manager/AudioManager";
 import { CallID } from "../CallID";
-import { MVC } from "../frame/MVC";
+import { MVCS } from "../frame/MVCS";
 
 declare var wx: any;
 declare var canvas: any;
@@ -164,7 +164,7 @@ export class Util {
     public static loadPrefab(path: string): Promise<cc.Node> {
         return new Promise((resolve, reject) => {
             let names = path.split(`/`);
-            MVC.ComponentHandler.loadAssetHandler(names[names.length - 1], path, cc.Prefab, (name: string, assets: object, assetspath: string, args: any) => {
+            MVCS.ComponentHandler.loadAssetHandler(names[names.length - 1], path, cc.Prefab, (name: string, assets: object, assetspath: string, args: any) => {
                 let prefab: cc.Node = assets as cc.Node;
                 if (prefab == null) {
                     cc.error(".loadCallback GameObject null:" + name);

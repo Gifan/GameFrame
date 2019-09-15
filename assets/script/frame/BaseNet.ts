@@ -157,7 +157,7 @@ export default class BaseNet {
         rspType: XMLHttpRequestResponseType = 'json'
     ): Promise<any> {
         return new Promise((resolve, reject) => {
-            let xmlHttp = new XMLHttpRequest();
+            let xmlHttp = cc.loader.getXMLHttpRequest();;
             xmlHttp.timeout = 7000;
             if (method == 'GET' && body) {
                 let str = "?";

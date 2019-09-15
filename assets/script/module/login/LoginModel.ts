@@ -1,7 +1,7 @@
-import { MVC } from "../../frame/MVC";
+import { MVCS } from "../../frame/MVCS";
 
 
-export class LoginModel extends MVC.BaseModel {
+export class LoginModel extends MVCS.BaseModel {
 
     private static _instance: LoginModel = null;
 

@@ -1,11 +1,11 @@
 import { ListenID } from "../../ListenID";
-import { MVC } from "../../frame/MVC";
+import { MVCS } from "../../frame/MVCS";
 import { Notifier } from "../../frame/Notifier";
 import @ModuleNameModel from "./@ModuleNameModel";
 /*
  * desc
  */
-export class @ModuleNameController extends MVC.BaseController {
+export class @ModuleNameController extends MVCS.BaseController {
     private _model: @ModuleNameModel;
     public constructor() {
         super("@ModuleNameController");

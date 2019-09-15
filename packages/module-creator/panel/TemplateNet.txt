@@ -1,12 +1,12 @@
-import { MVCS } from "../../../frame/mvcs/MVCS";
-import { Notifier } from "../../../frame/mvcs/Notifier";
-import { NotifyID } from "../../../frame/mvcs/NotifyID";
+import { MVCSS } from "../../../frame/MVCSs/MVCSS";
+import { Notifier } from "../../../frame/MVCSs/Notifier";
+import { NotifyID } from "../../../frame/MVCSs/NotifyID";
 import { ListenID } from "../../ListenID";
 import { NetUtil } from "../../NetUtil";
 import { @ModuleNameModel } from "./@ModuleNameModel"
 import { MsgID } from "../../MsgID";
 
-export class @ModuleNameNet extends MVCS.AbsNet<@ModuleNameModel> {
+export class @ModuleNameNet extends MVCSS.AbsNet<@ModuleNameModel> {
 
     public constructor() {
         super();

@@ -1,4 +1,4 @@
-import { Notifier } from "../../frame/mvcs/Notifier"
+import { Notifier } from "../../frame/MVCSs/Notifier"
 import { ListenID } from "../ListenID"
 
 //地图滚动控制

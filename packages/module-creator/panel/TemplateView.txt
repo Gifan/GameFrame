@@ -1,9 +1,9 @@
-import { MVC } from "../../frame/MVC";
+import { MVCS } from "../../frame/MVCS";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class @ModuleNameView extends MVC.BaseView {
+export default class @ModuleNameView extends MVCS.BaseView {
     protected changeListener(enable : boolean) : void {
         //Notifier.changeListener(enable, NotifyID.Game_Update, this.onUpdate, this);
     }

@@ -1,4 +1,4 @@
-import { MVC } from "./MVC"
+import { MVCS } from "./MVCS"
 import { Const } from "../config/Const";
 import { AlertManager, AlertType } from "../alert/AlertManager";
 type Node = cc.Node;
@@ -36,7 +36,7 @@ export class UIManager {
         // UIManager.m_func2viewTypes[funcId] = viewType;
     }
 
-    public static Open(type: string, transition: MVC.eTransition = MVC.eTransition.Default, uiLayer: MVC.eUILayer = MVC.eUILayer.Panel, args: any = null, isclean: boolean = true): void {
+    public static Open(type: string, transition: MVCS.eTransition = MVCS.eTransition.Default, uiLayer: MVCS.eUILayer = MVCS.eUILayer.Panel, args: any = null, isclean: boolean = true): void {
         //cc.error("UIManager.Open:" + type);
         // let viewType = UIManager.m_func2viewTypes[type];
         // if (viewType == null) {
@@ -65,7 +65,7 @@ export class UIManager {
         _instance.closeQueues();
     }
 
-    public static layerRoots(uiLayer: MVC.eUILayer = MVC.eUILayer.Panel): cc.Node {
+    public static layerRoots(uiLayer: MVCS.eUILayer = MVCS.eUILayer.Panel): cc.Node {
         return _instance.getLayerRoots(uiLayer);
     }
 
@@ -90,20 +90,20 @@ export class UIManager {
     private _viewNode: any = cc.js.createMap();
     private _views: AssetsMap;
     // private _viewQueues: cc.Node[][];
-    private _uiLayer: MVC.eUILayer;
+    private _uiLayer: MVCS.eUILayer;
     private _assets: string = "";
     private _assetList: string[];
-    private _transition: MVC.eTransition;
+    private _transition: MVCS.eTransition;
     private _counter: number = 0;
     private _countcall: number = 0;
     private constructor() {
         this._views = {};
         // this._viewQueues = [];
-        // for (let i = 0; i < MVC.eUIQueue.None; i++) {
+        // for (let i = 0; i < MVCS.eUIQueue.None; i++) {
         // this._viewQueues[i] = new Array<cc.Node>();
         // }
 
-        MVC.ViewHandler.initUIEvent(this.onOpen.bind(this), this.onClose.bind(this));
+        MVCS.ViewHandler.initUIEvent(this.onOpen.bind(this), this.onClose.bind(this));
     }
 
     private initRoot(): void {
@@ -114,8 +114,8 @@ export class UIManager {
         this._root.position = cc.v2(kWidth / 2, kHeight / 2);
         cc.game.addPersistRootNode(this._root);
         this._layerRoots = new Array<Node>();
-        for (let i = MVC.eUILayer.Scene; i < MVC.eUILayer.Max; i++) {
-            this._layerRoots[i] = this.addSubCanvas(MVC.eUILayer[i]);
+        for (let i = MVCS.eUILayer.Scene; i < MVCS.eUILayer.Max; i++) {
+            this._layerRoots[i] = this.addSubCanvas(MVCS.eUILayer[i]);
         }
     }
 
@@ -135,7 +135,7 @@ export class UIManager {
     private preloadView(asset: string, success?: Function, fail?: Function) {
         if (this._views[asset] == null) { //每次只存在唯一一个同样的视图
             let names = asset.split(`/`);
-            MVC.ViewHandler.loadAssetHandler(names[names.length - 1], asset, cc.Prefab, this.onPreLoadCallBack, this, { suc: success, fai: fail });
+            MVCS.ViewHandler.loadAssetHandler(names[names.length - 1], asset, cc.Prefab, this.onPreLoadCallBack, this, { suc: success, fai: fail });
         }
     }
 
@@ -153,7 +153,7 @@ export class UIManager {
         if (args && args.suc) args.suc();
     }
 
-    private open(asset: string, transition: MVC.eTransition = MVC.eTransition.Default, uiLayer: MVC.eUILayer = MVC.eUILayer.Panel, args: any = null, clean: boolean = true): void {
+    private open(asset: string, transition: MVCS.eTransition = MVCS.eTransition.Default, uiLayer: MVCS.eUILayer = MVCS.eUILayer.Panel, args: any = null, clean: boolean = true): void {
         let names = asset.split(`/`);
         if (this._views[asset] == null) { //每次只存在唯一一个同样的视图
             this._views[asset] = { asset: asset, args: args, uiLayer: uiLayer, transition: transition, cleanView: clean };
@@ -175,7 +175,7 @@ export class UIManager {
             this._assets = asset;
             this._uiLayer = uiLayer;
             this._transition = transition;
-            MVC.ViewHandler.loadAssetHandler(name, asset, cc.Prefab, this.onLoadCallback, this, args);
+            MVCS.ViewHandler.loadAssetHandler(name, asset, cc.Prefab, this.onLoadCallback, this, args);
         } else {
             if (this._views[asset].node) {
                 this._views[asset].node.getComponent(names[names.length - 1]).open(args);
@@ -184,7 +184,7 @@ export class UIManager {
         }
     }
 
-    public getLayerRoots(uiLayer: MVC.eUILayer): cc.Node {
+    public getLayerRoots(uiLayer: MVCS.eUILayer): cc.Node {
         return this._layerRoots[uiLayer];
     }
 
@@ -197,7 +197,7 @@ export class UIManager {
             let names = assetspath.split(`/`);
             this._countcall++;
             if (this._countcall <= 3)//打开失败连续打开3次
-                MVC.ViewHandler.loadAssetHandler(names[names.length - 1], assetspath, cc.Prefab, this.onLoadCallback, this, args);
+                MVCS.ViewHandler.loadAssetHandler(names[names.length - 1], assetspath, cc.Prefab, this.onLoadCallback, this, args);
             return;
         }
         let data = this._views[assetspath];
@@ -214,8 +214,8 @@ export class UIManager {
         this._countcall = 1;
     }
 
-    private onOpen(view: MVC.BaseView): void {
-        // if (view.uiQueue == MVC.eUIQueue.None) {
+    private onOpen(view: MVCS.BaseView): void {
+        // if (view.uiQueue == MVCS.eUIQueue.None) {
         //     return;
         // }
 
@@ -241,10 +241,10 @@ export class UIManager {
         }
     }
 
-    private onClose(view: MVC.BaseView, assetpath: string, isclean: boolean): void {
+    private onClose(view: MVCS.BaseView, assetpath: string, isclean: boolean): void {
         if (isclean)
             this._views[assetpath] = null;
-        // if (view.uiQueue == MVC.eUIQueue.None) {
+        // if (view.uiQueue == MVCS.eUIQueue.None) {
         //     return;
         // }
 
@@ -278,7 +278,7 @@ export class UIManager {
         //     }
         //     //需要拷贝出来
         //     let viewQueue = copy(this._viewQueues[i]);
-        //     this._viewQueues[i] = new Array<MVC.BaseView>();
+        //     this._viewQueues[i] = new Array<MVCS.BaseView>();
         //     for (let j = 0; j < viewQueue.length; j++) {
         //         viewQueue[j].close();
         //     }

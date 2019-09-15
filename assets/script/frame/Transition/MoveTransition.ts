@@ -1,11 +1,11 @@
-import { MVC } from "../MVC"
+import { MVCS } from "../MVCS"
 
 type Node = cc.Node
 
 /// <summary>
 /// 位移 UI切换过渡
 /// </summary>
-export class MoveTransition implements MVC.ITransition {
+export class MoveTransition implements MVCS.ITransition {
     private _node: Node;
     private _moveInAct: cc.Action;
     private _moveOutAct: cc.Action;

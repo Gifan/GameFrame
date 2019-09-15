@@ -1,4 +1,4 @@
-import { MVC } from "../MVC"
+import { MVCS } from "../MVCS"
     
 type Node = cc.Node
 type Animation = cc.Animation
@@ -6,7 +6,7 @@ type Animation = cc.Animation
 /// <summary>
 /// 动画 UI切换过渡
 /// </summary>
-export class AnimTransition implements MVC.ITransition {
+export class AnimTransition implements MVCS.ITransition {
     private _node : Node;
     private m_animator : Animation;
     private isClean:boolean = false;

@@ -1,11 +1,11 @@
 
 import { Manager } from "../manager/Manager";
-import { MVC } from "../frame/MVC";
+import { MVCS } from "../frame/MVCS";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class CommonAlert extends MVC.BaseView {
+export default class CommonAlert extends MVCS.BaseView {
 
     private cbConfirm:Function = null;
     start() {

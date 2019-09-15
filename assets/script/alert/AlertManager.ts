@@ -1,7 +1,7 @@
 
 import { Util } from "../utils/Util";
 import NormalTips from "./NormalTips";
-import { MVC } from "../frame/MVC";
+import { MVCS } from "../frame/MVCS";
 import { UIManager } from "../frame/UIManager";
 
 export enum AlertType {
@@ -29,7 +29,7 @@ export class AlertManager {
             if (parent && cc.isValid(parent)) {
                 node.parent = parent;
             } else {
-                node.setParent(UIManager.layerRoots(MVC.eUILayer.Tips));
+                node.setParent(UIManager.layerRoots(MVCS.eUILayer.Tips));
             }
             node.runAction(cc.sequence(action4, cc.delayTime(0.5), action5, cc.callFunc(() => {
                 this.tipPool.put(node);
@@ -55,9 +55,9 @@ export class AlertManager {
      */
     public static showAlert(alertType: AlertType, args: any) {
         if (alertType == AlertType.COMMON) {
-            UIManager.Open("ui/common/alert/CommonAlert", MVC.eTransition.Default, MVC.eUILayer.Loading, args);
+            UIManager.Open("ui/common/alert/CommonAlert", MVCS.eTransition.Default, MVCS.eUILayer.Loading, args);
         } else if (alertType == AlertType.NET_ERROR) {
-            UIManager.Open("ui/common/alert/NetErrorAlert", MVC.eTransition.Default, MVC.eUILayer.Loading, args);
+            UIManager.Open("ui/common/alert/NetErrorAlert", MVCS.eTransition.Default, MVCS.eUILayer.Loading, args);
         }
     }
 }
